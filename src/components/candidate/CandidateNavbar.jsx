@@ -1,39 +1,55 @@
-import {LayoutDashboard, Briefcase, User } from "lucide-react";
+import { LayoutDashboard, Briefcase, User } from "lucide-react";
+import { NavLink } from "react-router-dom"; // <-- 1. Import NavLink
+
 export default function CandidateNavbar() {
-    return (
-        <nav className="w-full flex items-center px-24 py-4 bg-white shadow">
+  
+  // --- 2. Kita buat style-nya di sini agar rapi ---
+  const baseStyle = "flex items-center gap-2 font-medium transition-colors";
+  const activeStyle = "text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg";
+  const inactiveStyle = "text-gray-500 hover:text-blue-600";
 
-            {/*kiri: Logo Relock*/}
-            <div className="flex-1">
-                <div className="flex items-center gap-2">
-                    <img src="/logo.png" className="w-10 h-10" alt="logo relock"></img>
-                    <span className="font-inter font-bold text-[20px]">RELOCK</span>
-                </div>
-            </div>
+  // Fungsi untuk menggabungkan style
+  const getNavLinkClass = ({ isActive }) => {
+    return `${baseStyle} ${isActive ? activeStyle : inactiveStyle}`;
+  };
 
-            {/*Tengah: menu */}
-            <div className="flex-1 flex justify-center items-center gap-10 text-gray-700 text-[16px]">
+  return (
+    <nav className="w-full flex items-center justify-between px-10 py-4 bg-white shadow border-b border-gray-100">
+      {/* ... (Logo tidak berubah) ... */}
+      <div className="flex-1 flex items-center justify-start gap-2">
+        <img src="logo.png" className="w-6 h-6" alt="logo relock"></img>
+        <span className="font-sans font-bold text-xl text-slate-900 tracking-tight">RELOCK</span>
+      </div>
 
-                {/* Dashboard */}
-                <a href="#" className="flex items-center gap-2 hover:text-blue-600 transition">
-                    <LayoutDashboard size={18}/>
-                    <span>Dashboard</span>
-                </a>
+      {/* --- 3. Ganti <a> dengan NavLink --- */}
+      <div className="flex items-center gap-10">
+        <NavLink 
+          to="/dashboard" // (Asumsi link-nya /dashboard)
+          className={getNavLinkClass}
+        >
+          <LayoutDashboard size={20} strokeWidth={2} />
+          <span>Dashboard</span>
+        </NavLink>
 
-                {/* My List */}
-                <a href="#" className="flex items-center gap-2 hover:text-blue-600 transition">
-                    <Briefcase size={18}/>
-                    <span>My List</span>
-                </a>
+        <NavLink 
+          to="/my-list" // (Sesuai App.jsx)
+          className={getNavLinkClass}
+        >
+          <Briefcase size={20} strokeWidth={2} />
+          <span>My List</span>
+        </NavLink>
 
-                {/* Profile */}
-                <a href="#" className="flex items-center gap-2 hover:text-blue-600 transition">
-                    <User size={18}/>
-                    <span>Profile</span>
-                </a>
-            </div>
-            <div className="flex-1"></div>
+        <NavLink 
+          to="/profile" // (Sesuai App.jsx)
+          className={getNavLinkClass}
+        >
+          <User size={20} strokeWidth={2} />
+          <span>Profile</span>
+        </NavLink>
+      </div>
 
-        </nav>
-    )
+      {/* ... (Sisi kanan tidak berubah) ... */}
+      <div className="flex-1 flex justify-end"></div>
+    </nav>
+  );
 }

@@ -1,10 +1,10 @@
 import { useState, useMemo } from "react";
 import { Search, SlidersHorizontal, Inbox } from "lucide-react"; // <-- 1. Tambah Inbox untuk ikon
-import CandidateNavbar from "../../components/candidate/CandidateNavbar.jsx";
+// import CandidateNavbar from "../../components/candidate/CandidateNavbar.jsx"; // (Import sudah di-komen, bagus)
 import JobCard from "../../components/candidate/JobCard.jsx";
 import FilterMyList from "../../components/candidate/FilterMyList.jsx";
 
-// Data Asli (Master) - Seolah-olah dari BE
+// Data dummy
 const appliedJobsData = [
   {
     id: 1,
@@ -147,7 +147,7 @@ export default function MyJobList() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans pb-10">
-      <CandidateNavbar />
+      {/* <CandidateNavbar /> <-- BARIS INI SAYA HAPUS */}
 
       <main className="max-w-5xl mx-auto px-6 mt-8">
         {/* ... (Header dan Search Bar tetap sama) ... */}
@@ -188,6 +188,7 @@ export default function MyJobList() {
             className={`flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${
               activeTab === "bookmarked"
                 ? "bg-blue-600 text-white shadow-md"
+                // trim. <-- TYPO 1 SUDAH DIHAPUS DARI SINI
                 : "text-gray-500 hover:bg-gray-50"
             }`}
           >
@@ -215,7 +216,7 @@ export default function MyJobList() {
               className={`text-xs px-2 py-0.5 rounded-full ${
                 activeTab === "applied"
                   ? "bg-white/20 text-white"
-                  : "bg-blue-100 text-blue-600"
+                  : "bg-blue-100 text-blue-600" // <-- TYPO 2 (S:) SUDAH DIHAPUS DARI SINI
               }`}
             >
               {displayedApplied.length}
