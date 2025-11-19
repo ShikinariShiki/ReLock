@@ -1,4 +1,4 @@
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import {
   ArrowLeft,
   MapPin,
@@ -8,18 +8,22 @@ import {
   Bookmark,
   Mail,
   Phone,
+  Check, // Tambahkan ikon Check untuk status tersimpan
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import ApplyForm from "../../components/candidate/ApplyForm.jsx"; // <-- Import Modal
+import ApplyForm from "../../components/candidate/ApplyForm.jsx";
 
 export default function JobDetail() {
   const navigate = useNavigate();
-  const { id } = useParams(); 
+  const { id } = useParams();
 
-  // State untuk mengontrol Modal Lamaran
   const [isApplyFormOpen, setIsApplyFormOpen] = useState(false);
+  
+  // 1. STATE BOOKMARK (Default false)
+  // Nanti bisa ambil status awal dari backend (apakah user sudah bookmark job ini?)
+  const [isBookmarked, setIsBookmarked] = useState(false);
 
-  // Data Dummy (Nanti ini diambil dari Backend berdasarkan ID)
+  // Data Dummy
   const job = {
     title: "UI/UX Designer Intern",
     company: "TechVision Indonesia",
@@ -65,6 +69,21 @@ export default function JobDetail() {
     },
   };
 
+  // 2. FUNGSI HANDLE BOOKMARK
+  const handleBookmark = () => {
+    // Toggle status bookmark
+    setIsBookmarked(!isBookmarked);
+    
+    // Simulasi Logika Backend (Opsional)
+    if (!isBookmarked) {
+      console.log("Lowongan disimpan ke bookmark!");
+      // Di sini bisa panggil API untuk simpan bookmark
+    } else {
+      console.log("Lowongan dihapus dari bookmark.");
+      // Di sini bisa panggil API untuk hapus bookmark
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans pb-12">
       <main className="max-w-6xl mx-auto px-6 pt-8">
@@ -80,7 +99,7 @@ export default function JobDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* --- KOLOM KIRI (DETAIL UTAMA) --- */}
           <div className="lg:col-span-2 space-y-6">
-            {/* 1. HEADER CARD */}
+            {/* HEADER CARD */}
             <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
               <div className="flex flex-col md:flex-row gap-6 items-start">
                 {/* Logo */}
@@ -135,19 +154,40 @@ export default function JobDetail() {
 
               {/* Tombol Aksi */}
               <div className="flex gap-4">
-                <button 
-                  onClick={() => setIsApplyFormOpen(true)} // <-- Buka Modal saat diklik
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                <button
+                  onClick={() => setIsApplyFormOpen(true)}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors"
+                >
                   Lamar Sekarang
                 </button>
-                <button className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
-                  <Bookmark size={20} />
-                  Simpan
+                
+                {/* 3. TOMBOL SIMPAN DINAMIS */}
+                <button
+                  onClick={handleBookmark}
+                  className={`flex items-center justify-center gap-2 px-6 py-3 border rounded-lg font-semibold transition-all duration-200
+                    ${isBookmarked 
+                      ? "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100" // Style saat tersimpan
+                      : "border-gray-300 text-gray-700 hover:bg-gray-50" // Style default
+                    }`}
+                >
+                  {isBookmarked ? (
+                    // Tampilan saat tersimpan
+                    <>
+                      <Check size={20} /> {/* Ikon Centang */}
+                      Tersimpan
+                    </>
+                  ) : (
+                    // Tampilan default
+                    <>
+                      <Bookmark size={20} /> {/* Ikon Bookmark Biasa */}
+                      Simpan
+                    </>
+                  )}
                 </button>
               </div>
             </div>
 
-            {/* 2. DESKRIPSI PEKERJAAN */}
+            {/* DESKRIPSI PEKERJAAN */}
             <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-sm">
               <h3 className="text-lg font-bold text-gray-900 mb-4">
                 Deskripsi Pekerjaan
@@ -191,7 +231,7 @@ export default function JobDetail() {
 
           {/* --- KOLOM KANAN (SIDEBAR) --- */}
           <div className="lg:col-span-1 space-y-6">
-            {/* 1. TENTANG PERUSAHAAN */}
+            {/* TENTANG PERUSAHAAN */}
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h3 className="text-md font-bold text-gray-900 mb-4">
                 Tentang Perusahaan
@@ -216,7 +256,7 @@ export default function JobDetail() {
               </p>
             </div>
 
-            {/* 2. KONTAK PERSON */}
+            {/* KONTAK PERSON */}
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h3 className="text-md font-bold text-gray-900 mb-4">
                 Kontak Person
@@ -249,7 +289,7 @@ export default function JobDetail() {
               </div>
             </div>
 
-            {/* 3. INFORMASI TAMBAHAN */}
+            {/* INFORMASI TAMBAHAN */}
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h3 className="text-md font-bold text-gray-900 mb-4">
                 Informasi Tambahan
@@ -277,7 +317,7 @@ export default function JobDetail() {
         </div>
       </main>
 
-      {/* Render Modal Lamaran jika state terbuka */}
+      {/* Render Form Lamaran jika state terbuka */}
       {isApplyFormOpen && (
         <ApplyForm
           jobTitle={job.title}
