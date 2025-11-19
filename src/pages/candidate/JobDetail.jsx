@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react"; 
 import {
   ArrowLeft,
   MapPin,
@@ -6,15 +6,18 @@ import {
   Calendar,
   Clock,
   Bookmark,
-  Share2,
   Mail,
   Phone,
 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
+import ApplyForm from "../../components/candidate/ApplyForm.jsx"; // <-- Import Modal
 
 export default function JobDetail() {
   const navigate = useNavigate();
-  const { id } = useParams(); // Mengambil ID dari URL (misal /job/123)
+  const { id } = useParams(); 
+
+  // State untuk mengontrol Modal Lamaran
+  const [isApplyFormOpen, setIsApplyFormOpen] = useState(false);
 
   // Data Dummy (Nanti ini diambil dari Backend berdasarkan ID)
   const job = {
@@ -132,7 +135,9 @@ export default function JobDetail() {
 
               {/* Tombol Aksi */}
               <div className="flex gap-4">
-                <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                <button 
+                  onClick={() => setIsApplyFormOpen(true)} // <-- Buka Modal saat diklik
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
                   Lamar Sekarang
                 </button>
                 <button className="flex items-center justify-center gap-2 px-6 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
@@ -271,6 +276,15 @@ export default function JobDetail() {
           </div>
         </div>
       </main>
+
+      {/* Render Modal Lamaran jika state terbuka */}
+      {isApplyFormOpen && (
+        <ApplyForm
+          jobTitle={job.title}
+          companyName={job.company}
+          onClose={() => setIsApplyFormOpen(false)}
+        />
+      )}
     </div>
   );
 }
