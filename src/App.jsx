@@ -1,20 +1,18 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
 // --- Layouts ---
-// (Pastikan Anda sudah punya kedua file ini di src/layouts/)
 import CandidateLayout from './layouts/CandidateLayout.jsx';
 import RecruiterLayout from './layouts/RecruiterLayout.jsx';
 
 // --- Halaman Kandidat ---
-// (Pastikan file ini ada di src/pages/candidate/)
 import MyList from './pages/candidate/MyJobList.jsx';
-// import Profile from './pages/candidate/Profile.jsx'; // (Nanti bisa ditambah)
-// import Dashboard from './pages/candidate/Dashboard.jsx'; // (Nanti bisa ditambah)
+import JobDetail from './pages/candidate/JobDetail.jsx'; // <-- (BARU) Tambahkan ini
+// import Profile from './pages/candidate/Profile.jsx';
+// import Dashboard from './pages/candidate/Dashboard.jsx';
 
 // --- Halaman Rekruter ---
-// (Pastikan file ini ada di src/pages/recruiter/)
 import CreateJob from './pages/recruiter/CreateJob.jsx';
-// import RecruiterDashboard from './pages/recruiter/Dashboard.jsx'; // (Nanti bisa ditambah)
+// import RecruiterDashboard from './pages/recruiter/Dashboard.jsx';
 
 export default function App() {
   return (
@@ -27,6 +25,11 @@ export default function App() {
           {/* Alamat '/' akan otomatis redirect ke '/my-list' */}
           <Route index element={<Navigate to="/my-list" replace />} /> 
           <Route path="my-list" element={<MyList />} />
+          
+          {/* (BARU) Rute Detail Lowongan */}
+          {/* :id artinya dinamis, bisa /job/1, /job/123, dll */}
+          <Route path="job/:id" element={<JobDetail />} /> 
+          
           {/* <Route path="profile" element={<Profile />} /> */}
         </Route>
 

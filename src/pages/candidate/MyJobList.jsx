@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Search, SlidersHorizontal, Inbox } from "lucide-react"; // <-- 1. Tambah Inbox untuk ikon
-// import CandidateNavbar from "../../components/candidate/CandidateNavbar.jsx"; // (Import sudah di-komen, bagus)
+// import CandidateNavbar from "../../components/candidate/CandidateNavbar.jsx"; 
 import JobCard from "../../components/candidate/JobCard.jsx";
 import FilterMyList from "../../components/candidate/FilterMyList.jsx";
 
@@ -147,10 +147,10 @@ export default function MyJobList() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans pb-10">
-      {/* <CandidateNavbar /> <-- BARIS INI SAYA HAPUS */}
+      
 
       <main className="max-w-5xl mx-auto px-6 mt-8">
-        {/* ... (Header dan Search Bar tetap sama) ... */}
+        {/* ... (Header dan Search Bar ) ... */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-slate-900">My Job List</h1>
           <p className="text-slate-500 mt-2 text-lg">
@@ -181,14 +181,13 @@ export default function MyJobList() {
           </button>
         </div>
 
-        {/* ... (Tabs tetap sama) ... */}
+        {/* ... (Tabs ) ... */}
         <div className="flex bg-white rounded-xl border border-gray-200 p-1.5 mb-8 shadow-sm">
           <button
             onClick={() => setActiveTab("bookmarked")}
             className={`flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${
               activeTab === "bookmarked"
                 ? "bg-blue-600 text-white shadow-md"
-                // trim. <-- TYPO 1 SUDAH DIHAPUS DARI SINI
                 : "text-gray-500 hover:bg-gray-50"
             }`}
           >
@@ -216,7 +215,7 @@ export default function MyJobList() {
               className={`text-xs px-2 py-0.5 rounded-full ${
                 activeTab === "applied"
                   ? "bg-white/20 text-white"
-                  : "bg-blue-100 text-blue-600" // <-- TYPO 2 (S:) SUDAH DIHAPUS DARI SINI
+                  : "bg-blue-100 text-blue-600" 
               }`}
             >
               {displayedApplied.length}
@@ -262,7 +261,7 @@ export default function MyJobList() {
         </div>
       </main>
 
-      {/* Render Modal */}
+      {/* Render filter */}
       {isFilterOpen && (
         <FilterMyList
           onClose={() => setIsFilterOpen(false)}

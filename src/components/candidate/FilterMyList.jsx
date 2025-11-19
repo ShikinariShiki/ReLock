@@ -56,7 +56,7 @@ export default function FilterMyList({ onClose, onApplyFilters }) { // <-- 2. Ta
     <div onClick={onClose} className="fixed inset-0 bg-black/40 z-40 flex justify-center items-center transition-opacity">
       <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 z-50 transform transition-all">
         
-        {/* Header Modal */}
+        {/* Header filter */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-900">Filters</h2>
           <button onClick={onClose} className="p-1 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
