@@ -24,7 +24,7 @@ export default function CandidateNavbar() {
       
       <div className="flex items-center gap-10">
         <NavLink 
-          to="/Homepage" 
+          to="/Homepage-candidate" 
           className={getNavLinkClass}
         >
           <LayoutDashboard size={20} strokeWidth={2} />

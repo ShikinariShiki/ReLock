@@ -11,6 +11,7 @@ import RecruiterLayout from "./layouts/RecruiterLayout.jsx";
 // --- Halaman Kandidat ---
 import MyList from "./pages/candidate/MyJobList.jsx";
 import JobDetail from "./pages/candidate/JobDetail.jsx";
+import Homepage from "./pages/candidate/Homepage.jsx";
 
 // --- Halaman Rekruter ---
 import CreateJob from "./pages/recruiter/CreateJob.jsx";
@@ -36,6 +37,7 @@ export default function App() {
 
           {/* Rute Detail Lowongan */}
           <Route path="job/:id" element={<JobDetail />} />
+          <Route path="Homepage-candidate" element={<Homepage />} />
         </Route>
 
         {/* === RUTE REKRUTER === */}

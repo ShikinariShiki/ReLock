@@ -16,13 +16,13 @@ import SuccessNotification from "../../components/common/SuccessNotification.jsx
 
 // --- PLACEHOLDERS ---
 const descPlaceholder =
-  "Jelaskan posisi pekerjaan, tanggung jawab utama, dan lingkungan kerja...";
+  "Describe the job position, key responsibilities, and work environment...";
 const respPlaceholder =
-  "- Mengembangkan dan memelihara aplikasi web\n- Berkolaborasi dengan tim desain...";
+  "- Develop and maintain web applications\n- Collaborate with design team...";
 const reqPlaceholder =
-  "- Minimal 3 tahun pengalaman di React\n- Menguasai TypeScript...";
+  "- Minimum 3 years of experience in React\n- Proficient in TypeScript...";
 const benefitPlaceholder =
-  "- Asuransi kesehatan\n- Tunjangan transportasi...";
+  "- Health insurance\n- Transport allowance...";
 
 // --- HELPER COMPONENTS ---
 function Section({ title, icon, children }) {
@@ -47,10 +47,10 @@ function SelectField({ label, name, value, onChange, options }) {
         name={name}
         value={value}
         onChange={onChange}
-        className="w-full bg-gray-50 border-gray-200 rounded-lg px-4 py-2.5 text-sm shadow-sm focus:ring-blue-500 focus:border-blue-500 outline-none"
+        className="w-full bg-gray-50 border-gray-200 rounded-lg px-4 py-2.5 text-sm shadow-sm focus:ring-blue-500 focus:border-blue-500 outline-none cursor-pointer"
       >
         {options.map((opt) => (
-          <option key={opt}>{opt}</option>
+          <option key={opt} value={opt}>{opt}</option>
         ))}
       </select>
     </div>
@@ -62,20 +62,21 @@ export default function CreateJob() {
   // State Data Form
   const [formData, setFormData] = useState({
     judul: "",
-    perusahaan: "Tech Indonesia",
-    lokasi: "Jakarta, Indonesia",
-    departemen: "Engineering",
-    tipe: "Part Time",
-    mode: "On-site",
-    gajiMin: "8000000",
-    gajiMax: "15000000",
+    perusahaan: "",
+    lokasi: "",
+    departemen: "",
+    tipe: "",
+    mode: "",
+    level: "", 
+    gajiMin: "",
+    gajiMax: "",
     deskripsi: "",
     tanggungJawab: "",
     persyaratan: "",
     benefit: "",
   });
 
-  // State UI (Error, Loading, Success)
+  // State UI
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -83,25 +84,24 @@ export default function CreateJob() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    // Hapus error real-time saat user mengetik
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: null }));
   };
 
   // Validasi Form
   const validateForm = () => {
     let newErrors = {};
-    if (!formData.judul.trim()) newErrors.judul = "Judul wajib diisi";
-    if (!formData.perusahaan.trim()) newErrors.perusahaan = "Perusahaan wajib diisi";
-    if (!formData.lokasi.trim()) newErrors.lokasi = "Lokasi wajib diisi";
-    if (!formData.departemen.trim()) newErrors.departemen = "Departemen wajib diisi";
-    if (!formData.deskripsi.trim()) newErrors.deskripsi = "Deskripsi wajib diisi";
-    if (!formData.tanggungJawab.trim()) newErrors.tanggungJawab = "Tanggung jawab wajib diisi";
-    if (!formData.persyaratan.trim()) newErrors.persyaratan = "Persyaratan wajib diisi";
+    if (!formData.judul.trim()) newErrors.judul = "Job title is required";
+    if (!formData.perusahaan.trim()) newErrors.perusahaan = "Company name is required";
+    if (!formData.lokasi.trim()) newErrors.lokasi = "Location is required";
+    if (!formData.departemen.trim()) newErrors.departemen = "Department is required";
+    if (!formData.deskripsi.trim()) newErrors.deskripsi = "Description is required";
+    if (!formData.tanggungJawab.trim()) newErrors.tanggungJawab = "Responsibilities are required";
+    if (!formData.persyaratan.trim()) newErrors.persyaratan = "Requirements are required";
     
-    if (parseInt(formData.gajiMin) < 0) newErrors.gajiMin = "Tidak boleh minus";
-    if (parseInt(formData.gajiMax) < 0) newErrors.gajiMax = "Tidak boleh minus";
+    if (parseInt(formData.gajiMin) < 0) newErrors.gajiMin = "Cannot be negative";
+    if (parseInt(formData.gajiMax) < 0) newErrors.gajiMax = "Cannot be negative";
     if (parseInt(formData.gajiMin) > parseInt(formData.gajiMax)) {
-      newErrors.gajiMin = "Min tidak boleh > Max";
+      newErrors.gajiMin = "Min cannot be greater than Max";
     }
 
     setErrors(newErrors);
@@ -120,8 +120,8 @@ export default function CreateJob() {
 
     // Simulasi API Call
     setTimeout(() => {
-      console.log("Data Terkirim:", formData);
-      setShowSuccess(true); // Munculkan notifikasi
+      console.log("Data Submitted:", formData);
+      setShowSuccess(true);
       setIsLoading(false);
       handleReset();
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -131,7 +131,8 @@ export default function CreateJob() {
   const handleReset = () => {
     setFormData({
       judul: "", perusahaan: "", lokasi: "", departemen: "",
-      tipe: "Part Time", mode: "On-site", gajiMin: "", gajiMax: "",
+      tipe: "Full Time", mode: "On-site", level: "1st year college student",
+      gajiMin: "", gajiMax: "",
       deskripsi: "", tanggungJawab: "", persyaratan: "", benefit: "",
     });
     setErrors({});
@@ -140,85 +141,95 @@ export default function CreateJob() {
   return (
     <div className="bg-gray-50 min-h-screen py-12">
       
-      {/* Notifikasi Sukses */}
       {showSuccess && (
         <SuccessNotification 
-          message="Lowongan kerja berhasil dibuat dan dipublikasikan."
+          message="Job vacancy successfully created and published."
           onClose={() => setShowSuccess(false)}
         />
       )}
 
       <form className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg" onSubmit={handleSubmit}>
         
-        {/* HEADER BIRU (Menyatu) */}
+        {/* HEADER */}
         <div className="bg-blue-600 p-8 text-white rounded-t-xl">
           <button type="button" className="flex items-center gap-2 text-sm opacity-90 hover:opacity-100">
-            <ArrowLeft size={18} /> Kembali
+            <ArrowLeft size={18} /> Back
           </button>
           <h1 className="text-3xl font-bold mt-4">Create New Vacancy</h1>
           <p className="text-blue-100">Fill this form to post vacancy</p>
         </div>
 
-        {/* BODY FORM */}
+        {/* BODY */}
         <div className="p-8">
-          {/* Informasi Dasar */}
-          <Section title="Informasi Dasar" icon={<Info />}>
+          {/* Basic Information */}
+          <Section title="Basic Information" icon={<Info />}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormInput
-                label="Judul Pekerjaan" name="judul"
+                label="Job Title" name="judul"
                 value={formData.judul} onChange={handleChange}
-                placeholder="e.g. Senior Software Engineer"
+                placeholder="e.g. Social Media Intern"
                 required error={errors.judul}
               />
               <FormInput
-                label="Nama Perusahaan" name="perusahaan"
+                label="Company Name" name="perusahaan"
                 value={formData.perusahaan} onChange={handleChange}
-                placeholder="e.g. Tech Indonesia"
+                placeholder="e.g. Relock Corp"
                 required error={errors.perusahaan}
               />
               <FormInput
-                label="Lokasi" name="lokasi"
+                label="Location" name="lokasi"
                 value={formData.lokasi} onChange={handleChange}
                 placeholder="e.g. Jakarta, Indonesia"
                 icon={<MapPin />} required error={errors.lokasi}
               />
               <FormInput
-                label="Departemen" name="departemen"
+                label="Department" name="departemen"
                 value={formData.departemen} onChange={handleChange}
-                placeholder="e.g. Engineering"
+                placeholder="e.g. Marketing"
                 icon={<Building />} required error={errors.departemen}
               />
             </div>
           </Section>
 
-          {/* Detail Pekerjaan */}
-          <Section title="Detail Pekerjaan" icon={<Briefcase />}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Job Details */}
+          <Section title="Job Details" icon={<Briefcase />}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <SelectField
-                label="Tipe Pekerjaan" name="tipe"
+                label="Job Type" name="tipe"
                 value={formData.tipe} onChange={handleChange}
-                options={["Part Time", "Full Time", "Internship", "Contract"]}
+                options={["Full Time", "Part Time", "Contract", "Freelance", "Internship"]}
               />
               <SelectField
-                label="Mode Kerja" name="mode"
+                label="Work Mode" name="mode"
                 value={formData.mode} onChange={handleChange}
                 options={["On-site", "Remote", "Hybrid"]}
+              />
+              <SelectField
+                label="Level" name="level"
+                value={formData.level} onChange={handleChange}
+                options={[
+                  "1st year college student", 
+                  "2nd year college student", 
+                  "3th year college student", 
+                  "4th year college student", 
+                  "Fresh Graduate (< 1 Year)",
+                ]}
               />
             </div>
           </Section>
 
-          {/* Rentang Gaji */}
-          <Section title="Rentang Gaji" icon={<DollarSign />}>
+          {/* Salary Range */}
+          <Section title="Salary Range" icon={<DollarSign />}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormInput
-                label="Gaji Minimum (IDR)" name="gajiMin" type="number"
+                label="Minimum Salary (IDR)" name="gajiMin" type="number"
                 value={formData.gajiMin} onChange={handleChange}
-                placeholder="e.g. 8000000" error={errors.gajiMin}
+                placeholder="e.g. 2000000" error={errors.gajiMin}
               />
               <FormInput
-                label="Gaji Maksimum (IDR)" name="gajiMax" type="number"
+                label="Maximum Salary (IDR)" name="gajiMax" type="number"
                 value={formData.gajiMax} onChange={handleChange}
-                placeholder="e.g. 15000000" error={errors.gajiMax}
+                placeholder="e.g. 3500000" error={errors.gajiMax}
               />
             </div>
           </Section>
@@ -226,28 +237,28 @@ export default function CreateJob() {
           {/* Textarea */}
           <div className="space-y-6 mt-8">
             <FormTextarea
-              label="Deskripsi Pekerjaan" name="deskripsi"
+              label="Job Description" name="deskripsi"
               value={formData.deskripsi} onChange={handleChange}
               placeholder={descPlaceholder} required error={errors.deskripsi}
             />
             <FormTextarea
-              label="Tanggung Jawab" name="tanggungJawab"
+              label="Responsibilities" name="tanggungJawab"
               value={formData.tanggungJawab} onChange={handleChange}
               placeholder={respPlaceholder} rows={5} required error={errors.tanggungJawab}
             />
             <FormTextarea
-              label="Persyaratan" name="persyaratan"
+              label="Requirements" name="persyaratan"
               value={formData.persyaratan} onChange={handleChange}
               placeholder={reqPlaceholder} rows={5} required error={errors.persyaratan}
             />
             <FormTextarea
-              label="Benefit & Fasilitas" name="benefit"
+              label="Benefits & Facilities" name="benefit"
               value={formData.benefit} onChange={handleChange}
               placeholder={benefitPlaceholder} rows={4}
             />
           </div>
 
-          {/* Tombol Aksi */}
+          {/* Action Buttons */}
           <div className="flex justify-end gap-4 mt-8 pt-8 border-t">
             <button
               type="button"
@@ -266,12 +277,12 @@ export default function CreateJob() {
               {isLoading ? (
                 <>
                   <Loader2 size={18} className="animate-spin" />
-                  Memproses...
+                  Processing...
                 </>
               ) : (
                 <>
                   <CheckSquare size={18} />
-                  Posting Lowongan
+                  Post Vacancy
                 </>
               )}
             </button>
