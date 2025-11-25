@@ -16,6 +16,7 @@ import CandidateProfile from "./pages/candidate/CandidateProfile.jsx";
 
 // --- Halaman Rekruter ---
 import CreateJob from "./pages/recruiter/CreateJob.jsx";
+import RecruiterProfile from "./pages/recruiter/RecruiterProfile.jsx";
 
 export default function App() {
   return (
@@ -46,6 +47,8 @@ export default function App() {
         <Route path="/recruiter" element={<RecruiterLayout />}>
           <Route index element={<Navigate to="create-job" replace />} />
           <Route path="create-job" element={<CreateJob />} />
+          <Route path="profile-recruiter" element={<RecruiterProfile />} />
+          
         </Route>
       </Routes>
     </BrowserRouter>
