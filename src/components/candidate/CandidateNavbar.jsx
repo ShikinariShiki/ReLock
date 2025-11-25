@@ -40,7 +40,7 @@ export default function CandidateNavbar() {
         </NavLink>
 
         <NavLink 
-          to="/profile" // (Sesuai App.jsx)
+          to="/profile-candidate" // (Sesuai App.jsx)
           className={getNavLinkClass}
         >
           <User size={20} strokeWidth={2} />

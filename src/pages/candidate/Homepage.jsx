@@ -32,7 +32,7 @@ export default function Homepage() {
   };
 
   const handleCardClick = (jobId) => {
-    navigate(`/job-detail/${jobId}`);
+    navigate(`/job/${jobId}`);
   };
 
   // Handler untuk Checkbox Kategori
