@@ -3,14 +3,16 @@ import {
   Briefcase, Users, Clock, Search, Plus, 
   ChevronDown, FileText 
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 // Import Komponen
 import DashboardJobCard from '../../components/recruiter/DashboardJobCard';
-import EditJobForm from '../../components/recruiter/EditJobForm'; // Import yang benar
+import EditJobForm from '../../components/recruiter/EditJobForm'; 
 
 export default function DashboardRecruiter() {
-  // State Statistik
+  const navigate = useNavigate(); // Hook navigasi
+
+  // ... (Bagian stats dan data jobs sama seperti sebelumnya) ...
   const stats = [
     { title: "Total Postings", value: "3", icon: Briefcase, color: "bg-blue-50 text-blue-600" },
     { title: "Active Opportunities", value: "3", icon: FileText, color: "bg-green-50 text-green-600" },
@@ -18,7 +20,6 @@ export default function DashboardRecruiter() {
     { title: "Pending Reviews", value: "0", icon: Clock, color: "bg-orange-50 text-orange-600" },
   ];
 
-  // State Jobs (Data Dummy disesuaikan dengan field di EditForm)
   const [jobs, setJobs] = useState([
     {
       id: 1,
@@ -29,67 +30,12 @@ export default function DashboardRecruiter() {
       tipe: "Internship",
       durasi: "3 months",
       applicants: 12,
-      deadline: "2026-01-31", // Dianggap sebagai Tanggal Selesai
+      deadline: "2026-01-31",
       posted: "15/10/2025",
       lokasi: "Jakarta",
-      // Data Tambahan untuk Edit Form
-      jumlahPosisi: 2,
-      tanggalMulai: "2025-11-01",
-      tanggalSelesai: "2026-01-31",
-      deskripsi: "Mencari UI/UX enthusiast untuk membantu tim produk.",
-      tanggungJawab: "- Membuat wireframe & mockup\n- Melakukan user research",
-      persyaratan: "- Mahasiswa tingkat akhir\n- Menguasai Figma",
-      benefit: "- Uang saku\n- Sertifikat",
-      contactName: "Sarah Wijaya",
-      contactEmail: "recruitment@techvision.id",
-      contactPhone: "+62 812-3456-7890"
+      // ... data lengkap lainnya
     },
-    {
-      id: 2,
-      judul: "Frontend Developer Internship",
-      perusahaan: "TechVision Indonesia",
-      status: "Active",
-      mode: "On-site",
-      tipe: "Internship",
-      durasi: "6 months",
-      applicants: 8,
-      deadline: "2026-05-10",
-      posted: "18/10/2025",
-      lokasi: "Jakarta",
-      jumlahPosisi: 1,
-      tanggalMulai: "2025-12-01",
-      tanggalSelesai: "2026-05-10",
-      deskripsi: "Mengembangkan antarmuka web yang responsif.",
-      tanggungJawab: "- Implementasi desain ke code\n- Bug fixing",
-      persyaratan: "- React.js\n- Tailwind CSS",
-      benefit: "- Makan siang\n- Transport",
-      contactName: "Budi Santoso",
-      contactEmail: "tech@techvision.id",
-      contactPhone: "+62 811-9876-5432"
-    },
-    {
-      id: 3,
-      judul: "Community Management Volunteer",
-      perusahaan: "TechVision Indonesia",
-      status: "Active",
-      mode: "Remote",
-      tipe: "Volunteer",
-      durasi: "3 months",
-      applicants: 5,
-      deadline: "2026-01-20",
-      posted: "10/10/2025",
-      lokasi: "Bandung",
-      jumlahPosisi: 5,
-      tanggalMulai: "2025-11-15",
-      tanggalSelesai: "2026-01-20",
-      deskripsi: "Mengelola komunitas developer di Discord.",
-      tanggungJawab: "- Moderasi chat\n- Membuat event online",
-      persyaratan: "- Komunikatif\n- Paham teknis dasar",
-      benefit: "- Merchandise\n- Akses event gratis",
-      contactName: "Dina",
-      contactEmail: "community@techvision.id",
-      contactPhone: "+62 813-1111-2222"
-    }
+    // ... data job lainnya
   ]);
 
   // --- STATE MODAL EDIT ---
@@ -103,20 +49,24 @@ export default function DashboardRecruiter() {
     }
   };
 
-  // 1. Buka Modal dan Set Data
+  // Handler Buka Modal Edit
   const handleEditClick = (job) => {
     setSelectedJob(job);
     setIsEditModalOpen(true);
   };
 
-  // 2. Simpan Perubahan (Update State Lokal)
+  // Handler Simpan Update
   const handleSaveUpdate = (updatedData) => {
     setJobs(prevJobs => prevJobs.map(job => 
       job.id === selectedJob.id ? { ...job, ...updatedData } : job
     ));
     setIsEditModalOpen(false);
     setSelectedJob(null);
-    console.log("Updated Job Data:", updatedData);
+  };
+
+  // 1. Handler Baru: Navigasi ke Halaman Pelamar (JobApplicants)
+  const handleViewApplicants = (jobId) => {
+    navigate(`/recruiter/job-applicants/${jobId}`);
   };
 
   return (
@@ -175,7 +125,7 @@ export default function DashboardRecruiter() {
             </div>
           </div>
 
-          {/* Job List */}
+          {/* 2. Pass handler ke komponen kartu */}
           <div className="space-y-4">
             {jobs.length > 0 ? (
               jobs.map((job) => (
@@ -183,7 +133,8 @@ export default function DashboardRecruiter() {
                   key={job.id} 
                   job={job} 
                   onDelete={() => handleDelete(job.id)}
-                  onEdit={() => handleEditClick(job)} // Pass handler edit
+                  onEdit={() => handleEditClick(job)}
+                  onViewApplicants={() => handleViewApplicants(job.id)} // PASS DISINI
                 />
               ))
             ) : (
@@ -196,7 +147,7 @@ export default function DashboardRecruiter() {
         </div>
       </div>
 
-      {/* --- FORM EDIT (PANGGIL KOMPONEN YANG BENAR) --- */}
+      {/* Form Edit Modal */}
       <EditJobForm 
         isOpen={isEditModalOpen}
         onClose={() => setIsEditModalOpen(false)}

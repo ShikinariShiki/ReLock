@@ -18,6 +18,7 @@ import CandidateProfile from "./pages/candidate/CandidateProfile.jsx";
 import CreateJob from "./pages/recruiter/CreateJob.jsx";
 import RecruiterProfile from "./pages/recruiter/RecruiterProfile.jsx";
 import DashboardRecruiter from "./pages/recruiter/DashboardRecruiter.jsx";
+import JobApplicants from "./pages/recruiter/JobApplicants.jsx";
 
 export default function App() {
   return (
@@ -50,6 +51,7 @@ export default function App() {
           <Route path="dashboard" element={<DashboardRecruiter />} />
           <Route path="create-job" element={<CreateJob />} />
           <Route path="profile-recruiter" element={<RecruiterProfile />} />
+          <Route path="job-applicants/:jobId" element={<JobApplicants />} />
           
         </Route>
       </Routes>

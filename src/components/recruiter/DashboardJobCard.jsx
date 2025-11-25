@@ -1,14 +1,14 @@
 import React from 'react';
 import { Users, Clock, Eye, Edit, Trash2 } from 'lucide-react';
 
-// Tambahkan prop onEdit
-export default function DashboardJobCard({ job, onDelete, onEdit }) {
+// Tambahkan prop onViewApplicants
+export default function DashboardJobCard({ job, onDelete, onEdit, onViewApplicants }) {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-all duration-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       
+      {/* Kiri: Info Lowongan */}
       <div className="flex-1">
         <div className="flex items-center gap-3 mb-2">
-          {/* Ganti job.title dengan job.judul sesuai data baru */}
           <h3 className="text-lg font-bold text-gray-900">{job.judul || job.title}</h3>
           <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${
             job.status === 'Active' 
@@ -40,11 +40,18 @@ export default function DashboardJobCard({ job, onDelete, onEdit }) {
         </div>
       </div>
 
+      {/* Kanan: Action Buttons */}
       <div className="flex items-center gap-2">
-        <button className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg border border-gray-200 transition" title="Lihat Detail">
+        
+        {/* 3. Pasang onClick onViewApplicants */}
+        <button 
+          onClick={onViewApplicants}
+          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg border border-gray-200 transition" 
+          title="Lihat Pelamar"
+        >
           <Eye size={18} />
         </button>
-        {/* Pasang onEdit disini */}
+
         <button 
           onClick={onEdit}
           className="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded-lg border border-gray-200 transition" 
@@ -52,6 +59,7 @@ export default function DashboardJobCard({ job, onDelete, onEdit }) {
         >
           <Edit size={18} />
         </button>
+        
         <button 
           onClick={onDelete}
           className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg border border-gray-200 transition" 
