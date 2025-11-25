@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom"; // 1. Import useNavigate
 import {
   ArrowLeft,
   Info,
@@ -8,6 +9,7 @@ import {
   Building,
   CheckSquare,
   Loader2,
+  User, 
 } from "lucide-react";
 
 import FormInput from "../../components/common/FormInput.jsx";
@@ -59,17 +61,26 @@ function SelectField({ label, name, value, onChange, options }) {
 
 // --- MAIN COMPONENT ---
 export default function CreateJob() {
+  const navigate = useNavigate(); // 2. Inisialisasi hook navigasi
+
   // State Data Form
   const [formData, setFormData] = useState({
     judul: "",
     perusahaan: "",
     lokasi: "",
     departemen: "",
-    tipe: "",
-    mode: "",
-    level: "", 
+    tipe: "Full Time",
+    mode: "On-site",
+    level: "1st year college student",
+    deadline: "",
+    durasi: "",
     gajiMin: "",
     gajiMax: "",
+    // Contact Person Data
+    contactName: "",
+    contactEmail: "",
+    contactPhone: "",
+    
     deskripsi: "",
     tanggungJawab: "",
     persyaratan: "",
@@ -94,6 +105,14 @@ export default function CreateJob() {
     if (!formData.perusahaan.trim()) newErrors.perusahaan = "Company name is required";
     if (!formData.lokasi.trim()) newErrors.lokasi = "Location is required";
     if (!formData.departemen.trim()) newErrors.departemen = "Department is required";
+    if (!formData.deadline) newErrors.deadline = "Deadline is required";
+    if (!formData.durasi.trim()) newErrors.durasi = "Duration is required";
+    
+    // Validasi Contact Person
+    if (!formData.contactName.trim()) newErrors.contactName = "Contact name is required";
+    if (!formData.contactEmail.trim()) newErrors.contactEmail = "Contact email is required";
+    if (!formData.contactPhone.trim()) newErrors.contactPhone = "Contact phone is required";
+
     if (!formData.deskripsi.trim()) newErrors.deskripsi = "Description is required";
     if (!formData.tanggungJawab.trim()) newErrors.tanggungJawab = "Responsibilities are required";
     if (!formData.persyaratan.trim()) newErrors.persyaratan = "Requirements are required";
@@ -123,8 +142,12 @@ export default function CreateJob() {
       console.log("Data Submitted:", formData);
       setShowSuccess(true);
       setIsLoading(false);
-      handleReset();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // 3. Redirect ke Dashboard setelah 2 detik (agar notifikasi terbaca dulu)
+      setTimeout(() => {
+        navigate('/recruiter/dashboard'); 
+      }, 2000);
+      
     }, 2000);
   };
 
@@ -132,7 +155,9 @@ export default function CreateJob() {
     setFormData({
       judul: "", perusahaan: "", lokasi: "", departemen: "",
       tipe: "Full Time", mode: "On-site", level: "1st year college student",
+      deadline: "", durasi: "",
       gajiMin: "", gajiMax: "",
+      contactName: "", contactEmail: "", contactPhone: "", // Reset contact
       deskripsi: "", tanggungJawab: "", persyaratan: "", benefit: "",
     });
     setErrors({});
@@ -152,7 +177,11 @@ export default function CreateJob() {
         
         {/* HEADER */}
         <div className="bg-blue-600 p-8 text-white rounded-t-xl">
-          <button type="button" className="flex items-center gap-2 text-sm opacity-90 hover:opacity-100">
+          <button 
+            type="button" 
+            onClick={() => navigate('/recruiter/dashboard')} // Tambahkan navigasi ke dashboard
+            className="flex items-center gap-2 text-sm opacity-90 hover:opacity-100"
+          >
             <ArrowLeft size={18} /> Back
           </button>
           <h1 className="text-3xl font-bold mt-4">Create New Vacancy</h1>
@@ -188,6 +217,19 @@ export default function CreateJob() {
                 placeholder="e.g. Marketing"
                 icon={<Building />} required error={errors.departemen}
               />
+              
+              <FormInput
+                label="Application Deadline" name="deadline" type="date"
+                value={formData.deadline} onChange={handleChange}
+                required error={errors.deadline}
+              />
+
+              <FormInput
+                label="Duration (e.g. 3 Months)" name="durasi"
+                value={formData.durasi} onChange={handleChange}
+                placeholder="e.g. 6 Months, 1 Year, or Permanent"
+                required error={errors.durasi}
+              />
             </div>
           </Section>
 
@@ -205,14 +247,14 @@ export default function CreateJob() {
                 options={["On-site", "Remote", "Hybrid"]}
               />
               <SelectField
-                label="Level" name="level"
+                label="Seniority Level" name="level"
                 value={formData.level} onChange={handleChange}
                 options={[
-                  "1st year college student", 
-                  "2nd year college student", 
-                  "3th year college student", 
-                  "4th year college student", 
-                  "Fresh Graduate (< 1 Year)",
+                  "No Experience (First Year Student)", 
+                  "Active Student (Ongoing)", 
+                  "Final Year Student", 
+                  "Fresh Graduate (< 1 Year)", 
+                  "Entry Level (1-3 Years)"
                 ]}
               />
             </div>
@@ -230,6 +272,30 @@ export default function CreateJob() {
                 label="Maximum Salary (IDR)" name="gajiMax" type="number"
                 value={formData.gajiMax} onChange={handleChange}
                 placeholder="e.g. 3500000" error={errors.gajiMax}
+              />
+            </div>
+          </Section>
+
+          {/* Contact Person Section (NEW) */}
+          <Section title="Contact Person" icon={<User />}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <FormInput
+                label="Full Name" name="contactName"
+                value={formData.contactName} onChange={handleChange}
+                placeholder="e.g. Sarah Wijaya"
+                required error={errors.contactName}
+              />
+              <FormInput
+                label="Email Address" name="contactEmail" type="email"
+                value={formData.contactEmail} onChange={handleChange}
+                placeholder="e.g. recruitment@techvision.id"
+                required error={errors.contactEmail}
+              />
+              <FormInput
+                label="Phone Number" name="contactPhone" type="tel"
+                value={formData.contactPhone} onChange={handleChange}
+                placeholder="e.g. +62 812-3456-7890"
+                required error={errors.contactPhone}
               />
             </div>
           </Section>

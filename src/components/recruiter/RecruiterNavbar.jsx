@@ -25,7 +25,7 @@ export default function RecruiterNavbar() {
       {/* Tengah: Menu */}
       <div className="flex items-center gap-10">
         <NavLink 
-          to="/recruiter/dashboard-recruiter" 
+          to="/recruiter/dashboard" 
           className={getNavLinkClass}
         >
           <LayoutDashboard size={20} strokeWidth={2} />

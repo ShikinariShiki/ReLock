@@ -17,6 +17,7 @@ import CandidateProfile from "./pages/candidate/CandidateProfile.jsx";
 // --- Halaman Rekruter ---
 import CreateJob from "./pages/recruiter/CreateJob.jsx";
 import RecruiterProfile from "./pages/recruiter/RecruiterProfile.jsx";
+import DashboardRecruiter from "./pages/recruiter/DashboardRecruiter.jsx";
 
 export default function App() {
   return (
@@ -45,7 +46,8 @@ export default function App() {
 
         {/* === RUTE REKRUTER === */}
         <Route path="/recruiter" element={<RecruiterLayout />}>
-          <Route index element={<Navigate to="create-job" replace />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<DashboardRecruiter />} />
           <Route path="create-job" element={<CreateJob />} />
           <Route path="profile-recruiter" element={<RecruiterProfile />} />
           

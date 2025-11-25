@@ -15,7 +15,7 @@ export default function SuccessNotification({ message, onClose }) {
       <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px]">
         <CheckCircle className="text-green-600" size={20} />
         <div className="flex-1">
-          <h4 className="font-bold text-sm">Sukses!</h4>
+          <h4 className="font-bold text-sm">Success!</h4>
           <p className="text-sm text-green-700">{message}</p>
         </div>
         <button 

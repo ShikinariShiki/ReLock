@@ -65,7 +65,7 @@ export default function RegisterCandidate() {
       console.log("Candidate Data:", formData);
       setIsLoading(false);
       setShowSuccess(true);
-      setTimeout(() => navigate('/login'), 2000);
+      setTimeout(() => navigate('/login-candidate'), 2000);
     }, 2000);
   };
 
