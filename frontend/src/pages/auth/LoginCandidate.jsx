@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import SuccessNotification from '../../components/common/SuccessNotification.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function LoginCandidate() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   // --- 1. STATE ---
   const [formData, setFormData] = useState({
@@ -17,6 +19,7 @@ export default function LoginCandidate() {
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [apiError, setApiError] = useState('');
 
   // --- 2. HANDLER ---
   const handleChange = (e) => {
@@ -27,6 +30,7 @@ export default function LoginCandidate() {
 
     // Hapus error real-time saat user mengetik
     if (errors[id]) setErrors(prev => ({ ...prev, [id]: null }));
+    if (apiError) setApiError('');
   };
 
   // --- 3. VALIDASI ---
@@ -48,23 +52,31 @@ export default function LoginCandidate() {
   };
 
   // --- 4. SUBMIT ---
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
 
     setIsLoading(true);
+    setApiError('');
 
-    // Simulasi API Call
-    setTimeout(() => {
-      console.log("Login Data:", formData);
-      setIsLoading(false);
-      setShowSuccess(true);
+    const result = await login(formData.email, formData.password);
+    
+    if (result.success) {
+      // Check if user is candidate
+      if (result.user.role !== 'candidate') {
+        setApiError('Please use recruiter login for company accounts');
+        setIsLoading(false);
+        return;
+      }
       
-      // Redirect ke Dashboard setelah notifikasi muncul
+      setShowSuccess(true);
       setTimeout(() => {
-        navigate('/homepage-candidate'); // Sesuaikan dengan route dashboard Anda
-      }, 2000);
-    }, 2000);
+        navigate('/homepage-candidate');
+      }, 1500);
+    } else {
+      setApiError(result.error || 'Invalid credentials');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -138,6 +150,13 @@ export default function LoginCandidate() {
             {/* Form */}
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
               
+              {/* API Error */}
+              {apiError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-600 text-sm">{apiError}</p>
+                </div>
+              )}
+
               {/* Email */}
               <div>
                 <label className="block text-[14px] font-medium text-[#1A1A1A] mb-2">Email Address</label>

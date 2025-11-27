@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Search, SlidersHorizontal, MapPin, 
   GraduationCap, Banknote, 
-  Clock, Home, Sparkles, Bookmark, Briefcase, X
+  Clock, Home, Sparkles, Bookmark, Briefcase, X, Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { jobsApi } from '../../services/api';
 
 export default function Homepage() {
   const navigate = useNavigate();
@@ -14,6 +15,11 @@ export default function Homepage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('newest'); // newest, high, low
   const [bookmarkedJobIds, setBookmarkedJobIds] = useState([]);
+
+  // --- STATE DATA ---
+  const [jobs, setJobs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // --- STATE FILTER DASAR (Dropdown Luar) ---
   const [basicFilters, setBasicFilters] = useState({
@@ -32,81 +38,61 @@ export default function Homepage() {
     datePosted: 'anytime'
   });
 
-  // --- DATA MOCK ---
-  const jobs = [
-    {
-      id: 1,
-      title: "Marketing Intern - Social Media",
-      company: "Tech Startup Indonesia",
-      location: "Jakarta",
-      status: "2nd year college student",
-      type: "Hybrid", // Work Mode
-      jobType: "Internship", // Added field for logic clarity
-      salary: "Rp 2.000.000 - 3.000.000",
-      tags: ["Marketing", "Social Media", "Content Creation"],
-      category: "Marketing & SocMed"
-    },
-    {
-      id: 2,
-      title: "UI/UX Design Intern",
-      company: "Creative Digital Agency",
-      location: "Bandung",
-      status: "4th year college student",
-      type: "Remote",
-      jobType: "Internship",
-      salary: "Rp 1.500.000 - 2.500.000",
-      tags: ["UI/Design", "Figma", "Design System"],
-      category: "Design & Creative"
-    },
-    {
-      id: 3,
-      title: "Content Writer Intern",
-      company: "Media Digital Nusantara",
-      location: "Jakarta",
-      status: "3th year college student",
-      type: "Hybrid",
-      jobType: "Internship",
-      salary: "Rp 2.500.000 - 3.500.000",
-      tags: ["Writing", "Content", "SEO"],
-      category: "Marketing & SocMed"
-    },
-    {
-      id: 4,
-      title: "Data Entry Intern",
-      company: "E-Commerce Solutions",
-      location: "Surabaya",
-      status: "1st year college student",
-      type: "On-site",
-      jobType: "Internship",
-      salary: "Rp 1.800.000 - 2.500.000",
-      tags: ["Excel", "Data Entry", "Admin"],
-      category: "Data & Product"
-    },
-    {
-      id: 5,
-      title: "Customer Service Intern",
-      company: "FinTech Startup",
-      location: "Jakarta",
-      status: "2nd year college student",
-      type: "Hybrid",
-      jobType: "Internship",
-      salary: "Rp 2.000.000 - 3.000.000",
-      tags: ["Customer Service", "Communication", "FinTech"],
-      category: "BusDev & Sales"
-    },
-    {
-      id: 6,
-      title: "Software Development Intern",
-      company: "Tech Academy",
-      location: "Remote",
-      status: "Fresh Graduate (< 1 Year)",
-      type: "Remote",
-      jobType: "Full Time", // Changed for variety
-      salary: "Rp 3.000.000 - 4.000.000",
-      tags: ["JavaScript", "Python", "Git"],
-      category: "Data & Product"
-    },
-  ];
+  // --- FETCH JOBS FROM API ---
+  useEffect(() => {
+    fetchJobs();
+  }, []);
+
+  const fetchJobs = async () => {
+    try {
+      setLoading(true);
+      const response = await jobsApi.getAll();
+      // Transform API data to match component expectations
+      const transformedJobs = response.data.map(job => ({
+        id: job.id,
+        title: job.title,
+        company: job.company_name || job.recruiter?.company_name || 'Unknown Company',
+        location: job.location || 'Remote',
+        status: job.level || 'Entry Level',
+        type: job.mode || 'On-site', // Work Mode
+        jobType: job.type || 'Full Time',
+        salary: job.salary_range || 'Negotiable',
+        salaryMin: parseFloat(job.salary_min) || 0,
+        salaryMax: parseFloat(job.salary_max) || 0,
+        tags: [job.department, job.type, job.mode].filter(Boolean),
+        category: mapDepartmentToCategory(job.department),
+        description: job.description,
+        deadline: job.deadline,
+        isExpired: job.is_expired,
+      }));
+      setJobs(transformedJobs);
+    } catch (err) {
+      setError('Failed to load jobs. Please try again.');
+      console.error('Error fetching jobs:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Helper to map department to category
+  const mapDepartmentToCategory = (department) => {
+    const mapping = {
+      'Engineering': 'Data & Product',
+      'Technology': 'Data & Product',
+      'Infrastructure': 'Data & Product',
+      'Mobile': 'Data & Product',
+      'Product': 'Data & Product',
+      'Design': 'Design & Creative',
+      'Marketing': 'Marketing & SocMed',
+      'Sales': 'BusDev & Sales',
+      'Business Development': 'BusDev & Sales',
+      'Finance': 'Finance & Account',
+      'Analytics': 'Finance & Account',
+      'HR': 'Recruiting & HR',
+      'Human Resources': 'Recruiting & HR',
+    };
+    return mapping[department] || 'Data & Product';
+  };
 
   const categories = [
     "All Jobs", "Data & Product", "BusDev & Sales", 
@@ -117,10 +103,11 @@ export default function Homepage() {
   // --- LOGIC HELPER ---
   
   // 1. Parser Gaji: Mengambil angka pertama (minimum) dari string "Rp X - Y"
-  const getSalaryValue = (salaryStr) => {
-    if (!salaryStr) return 0;
-    // Hapus semua karakter kecuali angka dan strip
-    const cleanStr = salaryStr.replace(/[^\d-]/g, ''); 
+  const getSalaryValue = (job) => {
+    // Use salaryMin if available, otherwise parse from string
+    if (job.salaryMin) return job.salaryMin;
+    if (!job.salary) return 0;
+    const cleanStr = job.salary.replace(/[^\d-]/g, ''); 
     const parts = cleanStr.split('-');
     return parseInt(parts[0]) || 0;
   };
@@ -154,7 +141,7 @@ export default function Homepage() {
       }
       
       // 2. Salary Range
-      const jobSalary = getSalaryValue(job.salary);
+      const jobSalary = getSalaryValue(job);
       if (advancedFilters.minSalary && jobSalary < parseInt(advancedFilters.minSalary)) return false;
       if (advancedFilters.maxSalary && jobSalary > parseInt(advancedFilters.maxSalary)) return false;
 
@@ -162,9 +149,9 @@ export default function Homepage() {
     }).sort((a, b) => {
       // E. Sorting
       if (sortBy === 'salaryHigh') {
-        return getSalaryValue(b.salary) - getSalaryValue(a.salary);
+        return getSalaryValue(b) - getSalaryValue(a);
       } else if (sortBy === 'salaryLow') {
-        return getSalaryValue(a.salary) - getSalaryValue(b.salary);
+        return getSalaryValue(a) - getSalaryValue(b);
       }
       // Default: Newest (Urutkan berdasarkan ID desc untuk simulasi)
       return b.id - a.id;
@@ -345,8 +332,26 @@ export default function Homepage() {
         {/* JOB COUNT */}
         <p className="text-gray-500 mb-6">{filteredAndSortedJobs.length} jobs found</p>
 
+        {/* LOADING STATE */}
+        {loading && (
+          <div className="flex justify-center items-center py-20">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            <span className="ml-2 text-gray-500">Loading jobs...</span>
+          </div>
+        )}
+
+        {/* ERROR STATE */}
+        {error && !loading && (
+          <div className="text-center py-20 bg-white rounded-xl border border-red-200">
+            <p className="text-red-500">{error}</p>
+            <button onClick={fetchJobs} className="mt-4 text-blue-600 font-medium hover:underline">
+              Try again
+            </button>
+          </div>
+        )}
+
         {/* JOB GRID */}
-        {filteredAndSortedJobs.length > 0 ? (
+        {!loading && !error && filteredAndSortedJobs.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredAndSortedJobs.map((job) => {
               const isBookmarked = bookmarkedJobIds.includes(job.id);
@@ -405,7 +410,7 @@ export default function Homepage() {
               );
             })}
           </div>
-        ) : (
+        ) : !loading && !error && (
           <div className="text-center py-20 bg-white rounded-xl border border-gray-200">
             <p className="text-gray-500">No jobs found matching your criteria.</p>
             <button onClick={() => {

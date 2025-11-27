@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loader2, User, Building2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import SuccessNotification from '../../components/common/SuccessNotification.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function RegisterCandidate() {
   const navigate = useNavigate();
+  const { registerCandidate } = useAuth();
 
   // --- 1. STATE UNTUK MENYIMPAN DATA FORM ---
   const [formData, setFormData] = useState({
@@ -20,6 +22,7 @@ export default function RegisterCandidate() {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [apiError, setApiError] = useState('');
   
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -32,6 +35,7 @@ export default function RegisterCandidate() {
     setFormData(prev => ({ ...prev, [id]: val }));
     
     if (errors[id]) setErrors(prev => ({ ...prev, [id]: null }));
+    if (apiError) setApiError('');
   };
 
   // --- 4. FUNGSI VALIDASI (BAHASA INGGRIS) ---
@@ -45,7 +49,7 @@ export default function RegisterCandidate() {
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email format";
     
     if (!formData.password) newErrors.password = "Password is required";
-    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+    else if (formData.password.length < 8) newErrors.password = "Password must be at least 8 characters";
     
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
     
@@ -56,17 +60,32 @@ export default function RegisterCandidate() {
   };
 
   // --- 5. HANDLE SUBMIT ---
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    setIsLoading(true);
     
-    setTimeout(() => {
-      console.log("Candidate Data:", formData);
-      setIsLoading(false);
+    setIsLoading(true);
+    setApiError('');
+
+    const result = await registerCandidate(formData);
+    
+    if (result.success) {
       setShowSuccess(true);
-      setTimeout(() => navigate('/login-candidate'), 2000);
-    }, 2000);
+      setTimeout(() => navigate('/homepage-candidate'), 1500);
+    } else {
+      // Handle validation errors from API
+      if (result.errors) {
+        const apiErrors = {};
+        Object.keys(result.errors).forEach(key => {
+          // Map snake_case to camelCase
+          const camelKey = key.replace(/_([a-z])/g, (m, p1) => p1.toUpperCase());
+          apiErrors[camelKey] = result.errors[key][0];
+        });
+        setErrors(prev => ({ ...prev, ...apiErrors }));
+      }
+      setApiError(result.error || 'Registration failed');
+      setIsLoading(false);
+    }
   };
 
   return (

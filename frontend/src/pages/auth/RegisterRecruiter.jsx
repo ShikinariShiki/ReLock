@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Loader2, User, Building2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import SuccessNotification from '../../components/common/SuccessNotification.jsx';
+import { useAuth } from '../../context/AuthContext.jsx';
 
 export default function RegisterRecruiter() {
   const navigate = useNavigate();
+  const { registerRecruiter } = useAuth();
 
   // --- 1. STATE UNTUK MENYIMPAN DATA FORM ---
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
+    companyName: '',
     email: '',
     password: '',
     confirmPassword: '',
@@ -17,71 +20,72 @@ export default function RegisterRecruiter() {
   });
 
   // --- 2. STATE UNTUK FEEDBACK UI ---
-  const [errors, setErrors] = useState({}); // Menyimpan pesan error per field
-  const [isLoading, setIsLoading] = useState(false); // Status loading saat submit
-  const [showSuccess, setShowSuccess] = useState(false); // Status notifikasi sukses
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [apiError, setApiError] = useState('');
   
-  // State untuk toggle visibility password
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   // --- 3. HANDLE PERUBAHAN INPUT ---
   const handleChange = (e) => {
     const { id, value, type, checked } = e.target;
-    // Jika tipe checkbox, ambil 'checked', jika text ambil 'value'
     const val = type === 'checkbox' ? checked : value;
     
     setFormData(prev => ({ ...prev, [id]: val }));
     
-    // Reset error saat user mulai mengetik ulang di field tersebut
     if (errors[id]) setErrors(prev => ({ ...prev, [id]: null }));
+    if (apiError) setApiError('');
   };
 
   // --- 4. FUNGSI VALIDASI FORM ---
   const validateForm = () => {
     let newErrors = {};
     
-    // Validasi Field Kosong
-    if (!formData.firstName.trim()) newErrors.firstName = "First name is requaired";
-    if (!formData.lastName.trim()) newErrors.lastName = "Last name is requaired";
+    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!formData.companyName.trim()) newErrors.companyName = "Company name is required";
     
-    // Validasi Email (Kosong & Format)
-    if (!formData.email.trim()) newErrors.email = "Email is requaired";
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "invalid email format";
+    if (!formData.email.trim()) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email format";
     
-    // Validasi Password (Min 6 karakter)
-    if (!formData.password) newErrors.password = "password is requaired";
-    else if (formData.password.length < 6) newErrors.password = "password must be at least 6 characters";
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 8) newErrors.password = "Password must be at least 8 characters";
     
-    // Validasi Konfirmasi Password
     if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
     
-    // Validasi Checkbox Terms
     if (!formData.termsAccepted) newErrors.termsAccepted = "You must accept the terms";
     
     setErrors(newErrors);
-    // Mengembalikan true jika tidak ada error (object kosong)
     return Object.keys(newErrors).length === 0;
   };
 
   // --- 5. HANDLE SUBMIT FORM ---
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Mencegah reload halaman
-    
-    // Jalankan validasi dulu, stop jika ada error
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     if (!validateForm()) return;
     
-    setIsLoading(true); // Mulai loading
+    setIsLoading(true);
+    setApiError('');
+
+    const result = await registerRecruiter(formData);
     
-    // Simulasi kirim data ke backend (delay 2 detik)
-    setTimeout(() => {
-      console.log("Data Terkirim:", formData);
-      setIsLoading(false); // Stop loading
-      setShowSuccess(true); // Tampilkan notifikasi sukses
-      
-      // Redirect ke halaman login setelah sukses
-      setTimeout(() => navigate('/login'), 2000);
-    }, 2000);
+    if (result.success) {
+      setShowSuccess(true);
+      setTimeout(() => navigate('/recruiter/dashboard'), 1500);
+    } else {
+      if (result.errors) {
+        const apiErrors = {};
+        Object.keys(result.errors).forEach(key => {
+          const camelKey = key.replace(/_([a-z])/g, (m, p1) => p1.toUpperCase());
+          apiErrors[camelKey] = result.errors[key][0];
+        });
+        setErrors(prev => ({ ...prev, ...apiErrors }));
+      }
+      setApiError(result.error || 'Registration failed');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -160,6 +164,14 @@ export default function RegisterRecruiter() {
             </div>
 
             <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+              
+              {/* API Error */}
+              {apiError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-600 text-sm">{apiError}</p>
+                </div>
+              )}
+
               <div className="flex gap-4">
                 <div className="w-1/2">
                   <label className="block text-[14px] font-medium text-[#1A1A1A] mb-2">First Name</label>
@@ -168,7 +180,6 @@ export default function RegisterRecruiter() {
                     value={formData.firstName} onChange={handleChange}
                     className={`h-[40px] block w-full px-3 py-2 bg-[#F8FAFC] border rounded-lg text-[14px] focus:outline-none focus:ring-2 transition ${errors.firstName ? 'border-red-500 focus:ring-red-200' : 'border-transparent focus:ring-blue-500 focus:bg-white'}`} 
                   />
-                  {/* Tampilkan error jika ada */}
                   {errors.firstName && <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>}
                 </div>
                 <div className="w-1/2">
@@ -180,6 +191,22 @@ export default function RegisterRecruiter() {
                   />
                   {errors.lastName && <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>}
                 </div>
+              </div>
+
+              {/* Company Name */}
+              <div>
+                <label className="block text-[14px] font-medium text-[#1A1A1A] mb-2">Company Name</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Building2 className="h-5 w-5 text-gray-400" />
+                  </div>
+                  <input 
+                    type="text" id="companyName" placeholder="Your Company Name" 
+                    value={formData.companyName} onChange={handleChange}
+                    className={`h-[40px] block w-full pl-10 pr-3 py-2 bg-[#F8FAFC] border rounded-lg text-[14px] focus:outline-none focus:ring-2 transition ${errors.companyName ? 'border-red-500 focus:ring-red-200' : 'border-transparent focus:ring-blue-500 focus:bg-white'}`} 
+                  />
+                </div>
+                {errors.companyName && <p className="text-red-500 text-xs mt-1">{errors.companyName}</p>}
               </div>
 
               <div>

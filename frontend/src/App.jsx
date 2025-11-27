@@ -20,40 +20,39 @@ import RecruiterProfile from "./pages/recruiter/RecruiterProfile.jsx";
 import DashboardRecruiter from "./pages/recruiter/DashboardRecruiter.jsx";
 import JobApplicants from "./pages/recruiter/JobApplicants.jsx";
 
+// --- Protected Routes ---
+import { ProtectedRoute, GuestRoute } from "./components/common/ProtectedRoute.jsx";
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* === RUTE AUTH === */}
-        {/* Rute Register Rekruter */}
-        <Route path="/register-recruiter" element={<RegisterRecruiter />} />
-        {/* Rute Register Kandidat */}
-        <Route path="/register-candidate" element={<RegisterCandidate />} />
+        {/* === RUTE AUTH (Guest Only) === */}
+        <Route path="/register-recruiter" element={<GuestRoute><RegisterRecruiter /></GuestRoute>} />
+        <Route path="/register-candidate" element={<GuestRoute><RegisterCandidate /></GuestRoute>} />
+        <Route path="/login-candidate" element={<GuestRoute><LoginCandidate /></GuestRoute>} />
+        <Route path="/login-recruiter" element={<GuestRoute><LoginRecruiter /></GuestRoute>} />
 
-        {/* Rute Login */}
-        <Route path="/login-candidate" element={<LoginCandidate />} />
-        <Route path="/login-recruiter" element={<LoginRecruiter />} />
-
-        {/*  RUTE KANDIDAT  */}
-        <Route path="/" element={<CandidateLayout />}>
-          <Route index element={<Navigate to="/my-list" replace />} />
+        {/*  RUTE KANDIDAT (Protected) */}
+        <Route path="/" element={<ProtectedRoute allowedRoles={['candidate']}><CandidateLayout /></ProtectedRoute>}>
+          <Route index element={<Navigate to="/homepage-candidate" replace />} />
           <Route path="my-list" element={<MyList />} />
           <Route path="profile-candidate" element={<CandidateProfile />} />
-
-          {/* Rute Detail Lowongan */}
           <Route path="job/:id" element={<JobDetail />} />
-          <Route path="Homepage-candidate" element={<Homepage />} />
+          <Route path="homepage-candidate" element={<Homepage />} />
         </Route>
 
-        {/* === RUTE REKRUTER === */}
-        <Route path="/recruiter" element={<RecruiterLayout />}>
+        {/* === RUTE REKRUTER (Protected) === */}
+        <Route path="/recruiter" element={<ProtectedRoute allowedRoles={['recruiter']}><RecruiterLayout /></ProtectedRoute>}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<DashboardRecruiter />} />
           <Route path="create-job" element={<CreateJob />} />
           <Route path="profile-recruiter" element={<RecruiterProfile />} />
           <Route path="job-applicants/:jobId" element={<JobApplicants />} />
-          
         </Route>
+
+        {/* Fallback redirect */}
+        <Route path="*" element={<Navigate to="/login-candidate" replace />} />
       </Routes>
     </BrowserRouter>
   );
