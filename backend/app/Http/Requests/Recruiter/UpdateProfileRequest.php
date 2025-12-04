@@ -21,6 +21,10 @@ class UpdateProfileRequest extends FormRequest
             'phone' => 'nullable|string|max:20',
             'position' => 'nullable|string|max:255',
             'company_description' => 'nullable|string|max:5000',
+            'tagline' => 'nullable|string|max:255',
+            'vision' => 'nullable|string|max:5000',
+            'mission' => 'nullable|string|max:5000',
+            'industry' => 'nullable|string|max:255',
             'location' => 'nullable|string|max:255',
         ];
     }

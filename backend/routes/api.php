@@ -3,15 +3,28 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\CandidateController;
-use App\Http\Controllers\Api\RecruiterController;
-use App\Http\Controllers\Api\JobController;
-use App\Http\Controllers\Api\JobApplicationController;
+
+// Use Case Controllers
+use App\Http\Controllers\Api\UseCase\RegisterUserController;
+use App\Http\Controllers\Api\UseCase\LoginUserController;
+use App\Http\Controllers\Api\UseCase\TambahLowonganController;
+use App\Http\Controllers\Api\UseCase\HapusLowonganController;
+use App\Http\Controllers\Api\UseCase\EditLowonganController;
+use App\Http\Controllers\Api\UseCase\TampilDetailLowonganController;
+use App\Http\Controllers\Api\UseCase\PencarianLowonganController;
+use App\Http\Controllers\Api\UseCase\ApplyLamaranController;
+use App\Http\Controllers\Api\UseCase\UbahStatusLamaranController;
+use App\Http\Controllers\Api\UseCase\LihatMyListController;
+use App\Http\Controllers\Api\UseCase\BookmarkLamaranController;
+use App\Http\Controllers\Api\UseCase\UnbookmarkLamaranController;
+use App\Http\Controllers\Api\UseCase\UpdateCandidateProfileController;
+use App\Http\Controllers\Api\UseCase\UpdateCompanyProfileController;
+use App\Http\Controllers\Api\UseCase\LihatPelamarController;
+use App\Http\Controllers\Api\Auth\SocialAuthController;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes for ReLock
+| API Routes for ReLock - Use Case Based Controllers
 |--------------------------------------------------------------------------
 */
 
@@ -44,58 +57,115 @@ Route::prefix('v1')->group(function () {
         }
     });
 
-    // Public authentication routes (with rate limiting)
+    // ==========================================
+    // USE CASE: RegisterUser
+    // ==========================================
     Route::middleware('throttle:auth')->group(function () {
-        Route::post('/register/candidate', [AuthController::class, 'registerCandidate']);
-        Route::post('/register/recruiter', [AuthController::class, 'registerRecruiter']);
-        Route::post('/login', [AuthController::class, 'login']);
+        Route::post('/register/candidate', [RegisterUserController::class, 'registerCandidate']);
+        Route::post('/register/recruiter', [RegisterUserController::class, 'registerRecruiter']);
     });
 
-    // Public job routes
-    Route::get('/jobs', [JobController::class, 'index']);
-    Route::get('/jobs/{id}', [JobController::class, 'show']);
+    // ==========================================
+    // USE CASE: LoginUser
+    // ==========================================
+    Route::middleware('throttle:auth')->group(function () {
+        Route::post('/login', [LoginUserController::class, 'login']);
+    });
+
+    // ==========================================
+    // SOCIAL AUTHENTICATION (Google OAuth)
+    // ==========================================
+    Route::prefix('auth')->group(function () {
+        Route::get('/google', [SocialAuthController::class, 'redirectToGoogle']);
+        Route::get('/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
+        Route::post('/google/token', [SocialAuthController::class, 'handleGoogleToken']);
+    });
+
+    // ==========================================
+    // USE CASE: PencarianLowongan (Public)
+    // ==========================================
+    Route::get('/jobs', PencarianLowonganController::class);
+
+    // ==========================================
+    // USE CASE: TampilDetailLowongan (Public)
+    // ==========================================
+    Route::get('/jobs/{id}', TampilDetailLowonganController::class);
 
     // Protected routes
     Route::middleware('auth:sanctum')->group(function () {
-        // Auth
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/me', [AuthController::class, 'me']);
+        
+        // ==========================================
+        // USE CASE: LoginUser (Logout & Me)
+        // ==========================================
+        Route::post('/logout', [LoginUserController::class, 'logout']);
+        Route::get('/me', [LoginUserController::class, 'me']);
 
-        // Candidate routes
+        // ==========================================
+        // CANDIDATE ROUTES
+        // ==========================================
         Route::prefix('candidate')->middleware('candidate')->group(function () {
-            Route::get('/profile', [CandidateController::class, 'show']);
-            Route::put('/profile', [CandidateController::class, 'update']);
-            Route::post('/upload-cv', [CandidateController::class, 'uploadCv']);
-            Route::get('/applications', [CandidateController::class, 'myApplications']);
+            
+            // USE CASE: UpdateCandidateProfile
+            Route::get('/profile', [UpdateCandidateProfileController::class, 'show']);
+            Route::put('/profile', [UpdateCandidateProfileController::class, 'update']);
+            Route::post('/upload-cv', [UpdateCandidateProfileController::class, 'uploadCv']);
+            Route::post('/upload-photo', [UpdateCandidateProfileController::class, 'uploadPhoto']);
+            
+            // USE CASE: LihatMyList
+            Route::get('/bookmarks', [LihatMyListController::class, 'bookmarks']);
+            Route::get('/applications', [LihatMyListController::class, 'applications']);
+            
+            // USE CASE: BookmarkLamaran
+            Route::post('/bookmarks/{jobId}', BookmarkLamaranController::class);
+            Route::get('/bookmarks/{jobId}/check', [BookmarkLamaranController::class, 'check']);
+            
+            // USE CASE: UnbookmarkLamaran
+            Route::delete('/bookmarks/{jobId}', UnbookmarkLamaranController::class);
         });
 
-        // Recruiter routes
+        // ==========================================
+        // RECRUITER ROUTES
+        // ==========================================
         Route::prefix('recruiter')->middleware('recruiter')->group(function () {
-            Route::get('/profile', [RecruiterController::class, 'show']);
-            Route::put('/profile', [RecruiterController::class, 'update']);
-            Route::post('/upload-logo', [RecruiterController::class, 'uploadLogo']);
-            Route::get('/dashboard', [RecruiterController::class, 'dashboard']);
+            
+            // USE CASE: UpdateCompanyProfile
+            Route::get('/profile', [UpdateCompanyProfileController::class, 'show']);
+            Route::put('/profile', [UpdateCompanyProfileController::class, 'update']);
+            Route::post('/upload-logo', [UpdateCompanyProfileController::class, 'uploadLogo']);
+            Route::get('/dashboard', [UpdateCompanyProfileController::class, 'dashboard']);
         });
 
-        // Job management (Recruiter only)
+        // ==========================================
+        // JOB MANAGEMENT (Recruiter only)
+        // ==========================================
         Route::middleware('recruiter')->group(function () {
-            Route::post('/jobs', [JobController::class, 'store']);
-            Route::put('/jobs/{id}', [JobController::class, 'update']);
-            Route::delete('/jobs/{id}', [JobController::class, 'destroy']);
-            Route::get('/jobs/{id}/applicants', [JobController::class, 'applicants']);
+            // USE CASE: TambahLowongan
+            Route::post('/jobs', TambahLowonganController::class);
+            
+            // USE CASE: EditLowongan
+            Route::put('/jobs/{id}', EditLowonganController::class);
+            
+            // USE CASE: HapusLowongan
+            Route::delete('/jobs/{id}', HapusLowonganController::class);
+            
+            // USE CASE: LihatPelamar
+            Route::get('/jobs/{id}/applicants', LihatPelamarController::class);
         });
 
-        // Job Applications
-        Route::post('/jobs/{jobId}/apply', [JobApplicationController::class, 'apply'])->middleware('candidate');
-        Route::get('/applications/{id}', [JobApplicationController::class, 'show']);
-        Route::put('/applications/{id}/status', [JobApplicationController::class, 'updateStatus'])->middleware('recruiter');
-        Route::delete('/applications/{id}', [JobApplicationController::class, 'withdraw'])->middleware('candidate');
+        // ==========================================
+        // USE CASE: ApplyLamaran (Candidate only)
+        // ==========================================
+        Route::post('/jobs/{jobId}/apply', ApplyLamaranController::class)->middleware('candidate');
+
+        // ==========================================
+        // USE CASE: UbahStatusLamaran (Recruiter only)
+        // ==========================================
+        Route::put('/applications/{id}/status', UbahStatusLamaranController::class)->middleware('recruiter');
     });
 });
 
-// Fallback route for v1 prefix - redirect unversioned API calls
+// Fallback route for v1 prefix
 Route::any('/{any}', function (Request $request) {
-    // If accessing without v1 prefix, redirect common endpoints
     $path = $request->path();
     if (!str_starts_with($path, 'v1/')) {
         return response()->json([

@@ -1,3 +1,79 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Page transition animations */
+.page-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease-out, transform 300ms ease-out;
+}
+
+.page-exit {
+  opacity: 1;
+}
+
+.page-exit-active {
+  opacity: 0;
+  transition: opacity 200ms ease-in;
+}
+
+/* Smooth transitions for all interactive elements */
+@layer base {
+  * {
+    @apply transition-colors duration-200;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+  }
+}
+
+@layer components {
+  /* Card animations */
+  .card-hover {
+    @apply transition-all duration-300 ease-out;
+  }
+  
+  .card-hover:hover {
+    @apply -translate-y-1 shadow-lg;
+  }
+  
+  /* Button transitions */
+  .btn-transition {
+    @apply transition-all duration-200 ease-out transform active:scale-95;
+  }
+  
+  /* Tab switch animation */
+  .tab-switch {
+    @apply transition-all duration-300 ease-out;
+  }
+}
+
+/* Dark mode colors */
+@layer utilities {
+  .dark-card {
+    @apply dark:bg-gray-800 dark:border-gray-700;
+  }
+  
+  .dark-text {
+    @apply dark:text-gray-100;
+  }
+  
+  .dark-text-muted {
+    @apply dark:text-gray-400;
+  }
+  
+  .dark-input {
+    @apply dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400;
+  }
+}

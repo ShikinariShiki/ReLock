@@ -99,6 +99,21 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Update user photo URL (called after uploading new photo)
+  const updateUserPhoto = (photoUrl) => {
+    setUser(prev => prev ? { ...prev, photo_url: photoUrl } : null);
+  };
+
+  // Refresh user data from server
+  const refreshUser = async () => {
+    try {
+      const response = await authApi.me();
+      setUser(response.data.user);
+    } catch (err) {
+      console.error('Failed to refresh user:', err);
+    }
+  };
+
   const isAuthenticated = !!user;
   const isCandidate = user?.role === 'candidate';
   const isRecruiter = user?.role === 'recruiter';
@@ -115,6 +130,8 @@ export const AuthProvider = ({ children }) => {
     registerCandidate,
     registerRecruiter,
     checkAuth,
+    updateUserPhoto,
+    refreshUser,
   };
 
   return (

@@ -207,19 +207,81 @@ export const candidateApi = {
     const formData = new FormData();
     formData.append('cv', file);
 
-    return fetch(`${API_BASE_URL}/candidate/upload-cv`, {
+    const response = await fetch(`${API_BASE_URL}/candidate/upload-cv`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${getToken()}`,
         'Accept': 'application/json',
       },
       body: formData,
-    }).then(res => res.json());
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw { status: response.status, message: data.message || 'Upload failed', errors: data.errors || {} };
+    }
+    return data;
+  },
+
+  // Upload profile photo
+  uploadPhoto: async (file) => {
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    const response = await fetch(`${API_BASE_URL}/candidate/upload-photo`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${getToken()}`,
+        'Accept': 'application/json',
+      },
+      body: formData,
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw { status: response.status, message: data.message || 'Upload failed', errors: data.errors || {} };
+    }
+    return data;
   },
 
   // Get my applications
   getApplications: async () => {
     return apiRequest('/candidate/applications');
+  },
+
+  // Get bookmarks
+  getBookmarks: async () => {
+    return apiRequest('/candidate/bookmarks');
+  },
+
+  // Add bookmark (BookmarkLamaran)
+  addBookmark: async (jobId) => {
+    return apiRequest(`/candidate/bookmarks/${jobId}`, {
+      method: 'POST',
+    });
+  },
+
+  // Remove bookmark (UnbookmarkLamaran)
+  removeBookmark: async (jobId) => {
+    return apiRequest(`/candidate/bookmarks/${jobId}`, {
+      method: 'DELETE',
+    });
+  },
+
+  // Toggle bookmark (convenience method)
+  toggleBookmark: async (jobId, isCurrentlyBookmarked) => {
+    if (isCurrentlyBookmarked) {
+      return apiRequest(`/candidate/bookmarks/${jobId}`, {
+        method: 'DELETE',
+      });
+    } else {
+      return apiRequest(`/candidate/bookmarks/${jobId}`, {
+        method: 'POST',
+      });
+    }
+  },
+
+  // Check if job is bookmarked
+  checkBookmark: async (jobId) => {
+    return apiRequest(`/candidate/bookmarks/${jobId}/check`);
   },
 };
 
@@ -243,14 +305,19 @@ export const recruiterApi = {
     const formData = new FormData();
     formData.append('logo', file);
 
-    return fetch(`${API_BASE_URL}/recruiter/upload-logo`, {
+    const response = await fetch(`${API_BASE_URL}/recruiter/upload-logo`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${getToken()}`,
         'Accept': 'application/json',
       },
       body: formData,
-    }).then(res => res.json());
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      throw { status: response.status, message: data.message || 'Upload failed', errors: data.errors || {} };
+    }
+    return data;
   },
 
   // Get dashboard data

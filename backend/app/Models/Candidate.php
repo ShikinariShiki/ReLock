@@ -25,6 +25,8 @@ class Candidate extends Model
         'experience_level',
         'portfolio_link',
         'cv_path',
+        'cv_filename',
+        'profile_photo',
     ];
 
     protected $casts = [
@@ -42,6 +44,16 @@ class Candidate extends Model
     public function applications(): HasMany
     {
         return $this->hasMany(JobApplication::class);
+    }
+
+    public function bookmarks(): HasMany
+    {
+        return $this->hasMany(Bookmark::class);
+    }
+
+    public function bookmarkedJobs()
+    {
+        return $this->belongsToMany(JobListing::class, 'bookmarks');
     }
 
     public function getFullNameAttribute(): string

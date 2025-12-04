@@ -5,16 +5,19 @@ import {
   Clock, Home, Sparkles, Bookmark, Briefcase, X, Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { jobsApi } from '../../services/api';
+import { jobsApi, candidateApi } from '../../services/api';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Homepage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   // --- STATE UTAMA ---
   const [activeCategory, setActiveCategory] = useState('All Jobs');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('newest'); // newest, high, low
   const [bookmarkedJobIds, setBookmarkedJobIds] = useState([]);
+  const [bookmarkLoading, setBookmarkLoading] = useState({}); // Track loading per job
 
   // --- STATE DATA ---
   const [jobs, setJobs] = useState([]);
@@ -41,7 +44,24 @@ export default function Homepage() {
   // --- FETCH JOBS FROM API ---
   useEffect(() => {
     fetchJobs();
-  }, []);
+    // Also fetch bookmarks if user is logged in
+    if (user) {
+      fetchBookmarks();
+    }
+  }, [user]);
+
+  const fetchBookmarks = async () => {
+    try {
+      const response = await candidateApi.getBookmarks();
+      const bookmarksArray = response.bookmarks || response.data || response || [];
+      const bookmarks = Array.isArray(bookmarksArray) ? bookmarksArray : [];
+      const bookmarkedIds = bookmarks.map(job => job.id);
+      setBookmarkedJobIds(bookmarkedIds);
+    } catch (err) {
+      console.error('Error fetching bookmarks:', err);
+      // Silent fail - bookmarks are not critical
+    }
+  };
 
   const fetchJobs = async () => {
     try {
@@ -160,12 +180,50 @@ export default function Homepage() {
 
 
   // --- HANDLERS ---
-  const handleBookmark = (e, jobId) => {
+  const handleBookmark = async (e, jobId) => {
     e.stopPropagation();
+    
+    // If not logged in, redirect to login
+    if (!user) {
+      navigate('/login-candidate');
+      return;
+    }
+
+    // Prevent double-clicking
+    if (bookmarkLoading[jobId]) return;
+
+    const isCurrentlyBookmarked = bookmarkedJobIds.includes(jobId);
+    
+    // Optimistic update
     setBookmarkedJobIds((prevIds) => {
-      if (prevIds.includes(jobId)) return prevIds.filter((id) => id !== jobId);
+      if (isCurrentlyBookmarked) {
+        return prevIds.filter((id) => id !== jobId);
+      }
       return [...prevIds, jobId];
     });
+
+    // Set loading state for this job
+    setBookmarkLoading(prev => ({ ...prev, [jobId]: true }));
+
+    try {
+      if (isCurrentlyBookmarked) {
+        await candidateApi.removeBookmark(jobId);
+      } else {
+        await candidateApi.addBookmark(jobId);
+      }
+    } catch (err) {
+      console.error('Error toggling bookmark:', err);
+      // Revert on error
+      setBookmarkedJobIds((prevIds) => {
+        if (isCurrentlyBookmarked) {
+          return [...prevIds, jobId];
+        }
+        return prevIds.filter((id) => id !== jobId);
+      });
+      alert('Failed to update bookmark. Please try again.');
+    } finally {
+      setBookmarkLoading(prev => ({ ...prev, [jobId]: false }));
+    }
   };
 
   const toggleCategoryFilter = (category) => {
@@ -229,12 +287,12 @@ export default function Homepage() {
                 placeholder="Search jobs..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <button 
               onClick={() => setIsFilterOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 font-medium transition-colors"
+              className="flex items-center gap-2 px-6 py-3 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 font-medium"
             >
               <SlidersHorizontal size={20} />
               Filters
@@ -318,7 +376,7 @@ export default function Homepage() {
             <button
               key={cat}
               onClick={() => setActiveCategory(cat)}
-              className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`whitespace-nowrap px-5 py-2 rounded-full text-sm font-medium ${
                 activeCategory === cat 
                   ? 'bg-[#155DFC] text-white shadow-md' 
                   : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
@@ -359,11 +417,11 @@ export default function Homepage() {
                 <div 
                   key={job.id} 
                   onClick={() => navigate(`/job/${job.id}`)} 
-                  className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-lg transition-shadow duration-200 flex flex-col h-full cursor-pointer group"
+                  className="bg-white border border-gray-100 rounded-xl p-6 hover:shadow-lg flex flex-col h-full cursor-pointer group animate-fade-in"
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors">
+                      <h3 className="text-lg font-semibold text-gray-900 line-clamp-1 group-hover:text-blue-600">
                         {job.title}
                       </h3>
                       <p className="text-gray-500 text-sm mt-1">{job.company}</p>

@@ -1,66 +1,119 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, FileText, Upload, Send, Loader2 } from "lucide-react";
+import { applicationsApi, candidateApi } from "../../services/api.js";
 
-export default function ApplyModal({ jobTitle, companyName, onClose }) {
+export default function ApplyModal({ jobId, jobTitle, companyName, onClose }) {
   const [cvOption, setCvOption] = useState("existing"); // 'existing' or 'new'
-  const [existingCvName, setExistingCvName] = useState(
-    "CV_Ahmad_Rizki_2025.pdf"
-  ); // Dummy data
+  const [existingCvName, setExistingCvName] = useState(null);
+  const [existingCvUrl, setExistingCvUrl] = useState(null);
   const [newFile, setNewFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
-  // Ganti menjadi "ID Lowongan" di implementasi nyata
-  const jobId = 999;
+  // Fetch candidate profile to get existing CV
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        setLoadingProfile(true);
+        const response = await candidateApi.getProfile();
+        const candidate = response.candidate || response;
+        
+        if (candidate.cv_path) {
+          // Extract filename from path
+          const fileName = candidate.cv_path.split('/').pop();
+          setExistingCvName(fileName);
+          setExistingCvUrl(candidate.cv_url);
+        } else {
+          // No existing CV, default to new upload
+          setCvOption("new");
+          setExistingCvName(null);
+        }
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+        // If can't fetch profile, default to new CV option
+        setCvOption("new");
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   const handleFileDrop = (e) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && file.size <= 10485760) {
-      // Cek ukuran maksimal 10MB
       setNewFile(file);
-      setCvOption("new"); // Otomatis pindah ke opsi Upload Baru
+      setCvOption("new");
+      setError(null);
     } else {
-      alert("Ukuran file melebihi batas maksimal 10MB.");
+      setError("Ukuran file melebihi batas maksimal 10MB.");
     }
   };
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
-    if (file) setNewFile(file);
-    setCvOption("new");
+    if (file) {
+      if (file.size > 10485760) {
+        setError("Ukuran file melebihi batas maksimal 10MB.");
+        return;
+      }
+      setNewFile(file);
+      setCvOption("new");
+      setError(null);
+    }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null);
 
-    // Logika Validasi (Minimal pilih salah satu opsi)
+    // Validation
     if (cvOption === "new" && !newFile) {
-      alert("Silakan unggah file CV baru atau pilih CV yang sudah ada.");
+      setError("Silakan unggah file CV baru atau pilih CV yang sudah ada.");
       return;
     }
     if (cvOption === "existing" && !existingCvName) {
-      alert("Anda belum memiliki CV yang disimpan.");
+      setError("Anda belum memiliki CV yang disimpan. Silakan upload CV baru.");
       return;
     }
 
     setIsLoading(true);
 
-    // === SIMULASI API LAMARAN ===
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsSuccess(true);
-      console.log(`Lowongan ID ${jobId} Dilamar dengan opsi: ${cvOption}`);
+    try {
+      // If uploading new CV, first upload to profile
+      if (cvOption === "new" && newFile) {
+        await candidateApi.uploadCv(newFile);
+      }
 
-      // Setelah sukses, modal akan tertutup otomatis setelah beberapa saat
+      // Apply for the job - always use 'existing' because CV is now in profile
+      // (either it was already there, or we just uploaded it)
+      const response = await applicationsApi.apply(jobId, {
+        cv_type: 'existing',
+      });
+
+      setIsSuccess(true);
+      
+      // Close modal after success
       setTimeout(() => {
         onClose();
       }, 2500);
-    }, 2000);
+    } catch (err) {
+      console.error('Error applying:', err);
+      if (err.error === 'already_applied') {
+        setError("Anda sudah pernah melamar untuk posisi ini.");
+      } else {
+        setError(err.message || "Gagal mengirim lamaran. Silakan coba lagi.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isSuccess) {
-    // Tampilan Sukses (sesuai Lowongan Detail Page (10).png)
     return (
       <div className="fixed inset-0 bg-black/50 z-50 flex justify-center items-center p-4">
         <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-10 text-center animate-in zoom-in duration-300">
@@ -73,6 +126,18 @@ export default function ApplyModal({ jobTitle, companyName, onClose }) {
           <p className="text-gray-500">
             Lamaran Anda akan segera ditinjau oleh tim rekruter {companyName}.
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading profile state
+  if (loadingProfile) {
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex justify-center items-center p-4">
+        <div className="bg-white rounded-xl shadow-2xl w-full max-w-md p-10 text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-blue-600 mx-auto mb-4" />
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
@@ -94,7 +159,8 @@ export default function ApplyModal({ jobTitle, companyName, onClose }) {
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-gray-400 hover:text-gray-900 transition-colors"
+            disabled={isLoading}
+            className="p-1 text-gray-400 hover:text-gray-900 transition-colors disabled:opacity-50"
           >
             <X size={24} />
           </button>
@@ -103,39 +169,48 @@ export default function ApplyModal({ jobTitle, companyName, onClose }) {
         {/* Body Form */}
         <form onSubmit={handleSubmit}>
           <div className="p-6 space-y-6">
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                {error}
+              </div>
+            )}
+
             <h3 className="text-base font-semibold text-gray-900">
               Pilih CV untuk Lamaran
             </h3>
 
             {/* Opsi 1: Gunakan CV Tersimpan */}
-            <div
-              onClick={() => setCvOption("existing")}
-              className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
-                cvOption === "existing"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:bg-gray-50"
-              }`}
-            >
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  name="cv_choice"
-                  value="existing"
-                  checked={cvOption === "existing"}
-                  onChange={() => setCvOption("existing")}
-                  className="form-radio text-blue-600 h-4 w-4"
-                />
-                <div className="flex flex-col">
-                  <span className="font-medium text-gray-800">
-                    Gunakan CV dari Profil
-                  </span>
-                  <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                    <FileText size={12} />
-                    {existingCvName}
-                  </p>
-                </div>
-              </label>
-            </div>
+            {existingCvName && (
+              <div
+                onClick={() => setCvOption("existing")}
+                className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                  cvOption === "existing"
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 hover:bg-gray-50"
+                }`}
+              >
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="cv_choice"
+                    value="existing"
+                    checked={cvOption === "existing"}
+                    onChange={() => setCvOption("existing")}
+                    className="form-radio text-blue-600 h-4 w-4"
+                  />
+                  <div className="flex flex-col">
+                    <span className="font-medium text-gray-800">
+                      Gunakan CV dari Profil
+                    </span>
+                    <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                      <FileText size={12} />
+                      {existingCvName}
+                    </p>
+                  </div>
+                </label>
+              </div>
+            )}
 
             {/* Opsi 2: Unggah CV Baru */}
             <div
@@ -157,7 +232,7 @@ export default function ApplyModal({ jobTitle, companyName, onClose }) {
                 />
                 <div className="flex flex-col">
                   <span className="font-medium text-gray-800">
-                    Unggah CV Baru
+                    {existingCvName ? "Unggah CV Baru" : "Unggah CV Anda"}
                   </span>
                   <p className="text-xs text-red-500 mt-1">
                     Format PDF maksimal 10MB
@@ -170,7 +245,10 @@ export default function ApplyModal({ jobTitle, companyName, onClose }) {
                 <div
                   onDrop={handleFileDrop}
                   onDragOver={(e) => e.preventDefault()}
-                  onClick={() => document.getElementById("file-upload").click()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    document.getElementById("file-upload").click();
+                  }}
                   className={`mt-4 border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
                     newFile
                       ? "border-green-500 bg-green-50"
@@ -217,7 +295,7 @@ export default function ApplyModal({ jobTitle, companyName, onClose }) {
             </button>
             <button
               type="submit"
-              disabled={isLoading || (cvOption === "new" && !newFile)}
+              disabled={isLoading || (cvOption === "new" && !newFile) || (cvOption === "existing" && !existingCvName)}
               className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 disabled:bg-blue-400"
             >
               {isLoading && <Loader2 size={16} className="animate-spin" />}

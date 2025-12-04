@@ -29,6 +29,8 @@ class CandidateResource extends JsonResource
             'portfolio_link' => $this->portfolio_link,
             'cv_path' => $this->cv_path,
             'cv_url' => $this->cv_path ? Storage::disk('public')->url($this->cv_path) : null,
+            'profile_photo' => $this->profile_photo,
+            'photo_url' => $this->profile_photo ? Storage::disk('public')->url($this->profile_photo) : null,
             'user' => new UserResource($this->whenLoaded('user')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,

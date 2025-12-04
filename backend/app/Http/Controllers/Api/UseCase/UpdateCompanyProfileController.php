@@ -1,0 +1,134 @@
+<?php
+
+namespace App\Http\Controllers\Api\UseCase;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Recruiter\UpdateProfileRequest;
+use App\Http\Requests\Recruiter\UploadLogoRequest;
+use App\Http\Resources\JobListingResource;
+use App\Http\Resources\RecruiterResource;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+
+/**
+ * Use Case: UpdateCompanyProfile
+ * Handles recruiter/company profile viewing and updating
+ */
+class UpdateCompanyProfileController extends Controller
+{
+    /**
+     * Get current recruiter's profile
+     */
+    public function show(Request $request)
+    {
+        $recruiter = $request->user()->recruiter;
+        
+        if (!$recruiter) {
+            return response()->json([
+                'message' => 'Recruiter profile not found',
+                'error' => 'not_found',
+            ], 404);
+        }
+
+        return new RecruiterResource($recruiter->load('user'));
+    }
+
+    /**
+     * Update recruiter profile
+     */
+    public function update(UpdateProfileRequest $request)
+    {
+        $recruiter = $request->user()->recruiter;
+
+        if (!$recruiter) {
+            return response()->json([
+                'message' => 'Recruiter profile not found',
+                'error' => 'not_found',
+            ], 404);
+        }
+
+        $recruiter->update($request->validated());
+
+        // Update user name if first/last name changed
+        if ($request->has('first_name') || $request->has('last_name')) {
+            $request->user()->update([
+                'name' => ($request->first_name ?? $recruiter->first_name) . ' ' . 
+                         ($request->last_name ?? $recruiter->last_name),
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Profile updated successfully',
+            'recruiter' => new RecruiterResource($recruiter->fresh()->load('user')),
+        ]);
+    }
+
+    /**
+     * Upload company logo
+     */
+    public function uploadLogo(UploadLogoRequest $request)
+    {
+        $recruiter = $request->user()->recruiter;
+
+        if (!$recruiter) {
+            return response()->json([
+                'message' => 'Recruiter profile not found',
+                'error' => 'not_found',
+            ], 404);
+        }
+
+        // Delete old logo if exists
+        if ($recruiter->company_logo) {
+            Storage::disk('public')->delete($recruiter->company_logo);
+        }
+
+        $path = $request->file('logo')->store('logos', 'public');
+        $recruiter->update(['company_logo' => $path]);
+
+        return response()->json([
+            'message' => 'Logo uploaded successfully',
+            'logo_path' => $path,
+            'logo_url' => Storage::disk('public')->url($path),
+        ]);
+    }
+
+    /**
+     * Get recruiter dashboard with stats
+     */
+    public function dashboard(Request $request)
+    {
+        $recruiter = $request->user()->recruiter;
+
+        if (!$recruiter) {
+            return response()->json([
+                'message' => 'Recruiter profile not found',
+                'error' => 'not_found',
+            ], 404);
+        }
+
+        $jobs = $recruiter->jobListings()
+            ->withCount('applications')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $stats = [
+            'total_jobs' => $jobs->count(),
+            'active_jobs' => $jobs->where('status', 'active')->count(),
+            'closed_jobs' => $jobs->where('status', 'closed')->count(),
+            'draft_jobs' => $jobs->where('status', 'draft')->count(),
+            'total_applications' => $jobs->sum('applications_count'),
+            'recent_applications' => $recruiter->jobListings()
+                ->with(['applications' => function($q) {
+                    $q->where('created_at', '>=', now()->subDays(7));
+                }])
+                ->get()
+                ->flatMap->applications
+                ->count(),
+        ];
+
+        return response()->json([
+            'jobs' => JobListingResource::collection($jobs),
+            'stats' => $stats,
+        ]);
+    }
+}

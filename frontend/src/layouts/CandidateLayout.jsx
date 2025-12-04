@@ -6,9 +6,7 @@ export default function CandidateLayout() {
   return (
     <div className="min-h-screen bg-gray-50">
       <CandidateNavbar />
-      
-        <Outlet /> {/* Halaman (MyJobList, Profile, dll) akan muncul di sini */}
-      
+      <Outlet />
     </div>
   );
 }

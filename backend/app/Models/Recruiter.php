@@ -17,6 +17,10 @@ class Recruiter extends Model
         'phone',
         'position',
         'company_description',
+        'tagline',
+        'vision',
+        'mission',
+        'industry',
         'company_logo',
         'location',
     ];

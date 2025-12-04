@@ -100,6 +100,39 @@ class CandidateController extends Controller
     }
 
     /**
+     * Upload profile photo
+     */
+    public function uploadPhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+        ]);
+
+        $candidate = $request->user()->candidate;
+
+        if (!$candidate) {
+            return response()->json([
+                'message' => 'Candidate profile not found',
+                'error' => 'not_found',
+            ], 404);
+        }
+
+        // Delete old photo if exists
+        if ($candidate->profile_photo) {
+            Storage::disk('public')->delete($candidate->profile_photo);
+        }
+
+        $path = $request->file('photo')->store('photos', 'public');
+        $candidate->update(['profile_photo' => $path]);
+
+        return response()->json([
+            'message' => 'Photo uploaded successfully',
+            'photo_path' => $path,
+            'photo_url' => Storage::disk('public')->url($path),
+        ]);
+    }
+
+    /**
      * Get candidate's job applications
      */
     public function myApplications(Request $request)

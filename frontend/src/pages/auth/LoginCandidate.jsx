@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import SuccessNotification from '../../components/common/SuccessNotification.jsx';
 import { useAuth } from '../../context/AuthContext.jsx';
@@ -79,6 +80,20 @@ export default function LoginCandidate() {
     }
   };
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.2 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#EFF6FF] via-white to-[#EFF6FF]">
       
@@ -94,7 +109,12 @@ export default function LoginCandidate() {
       <div className="w-[1039px] h-[732px] bg-white shadow-2xl rounded-2xl overflow-hidden flex">
         
         {/* --- KOLOM KIRI (BIRU) --- */}
-        <div className="w-1/2 h-full bg-gradient-to-br from-[#155DFC] to-[#1447E6] text-white p-12 relative overflow-hidden flex flex-col justify-center gap-8">
+        <motion.div 
+          initial={{ opacity: 0, x: -50 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="w-1/2 h-full bg-gradient-to-br from-[#155DFC] to-[#1447E6] text-white p-12 relative overflow-hidden flex flex-col justify-center gap-8"
+        >
           
           {/* Dekorasi Lingkaran */}
           <div className="absolute opacity-10 pointer-events-none">
@@ -103,62 +123,86 @@ export default function LoginCandidate() {
           </div>
 
           {/* Logo & Brand */}
-          <div className="relative z-10 flex items-center gap-2">
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="relative z-10 flex items-center gap-2"
+          >
             <img src="/logoPutih.png" className="w-12 h-12" alt="logo relock" />
             <span className="text-[32px] font-bold leading-[54px]">RELOCK</span>
-          </div>
+          </motion.div>
 
           {/* Teks Selamat Datang */}
-          <div className="relative z-10">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            className="relative z-10"
+          >
             <h1 className="text-[30px] font-normal leading-[36px]">Welcome Back!</h1>
             <p className="text-[#DBEAFE] text-[18px] font-normal leading-[28px] mt-6 max-w-[404px]">
               Log in to access thousands of job opportunities and connect with top companies in Indonesia.
             </p>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* --- KOLOM KANAN (FORMULIR) --- */}
         <div className="w-1/2 h-full p-12 relative flex flex-col justify-center">
           
           {/* Navigasi Atas (Login/Sign Up) */}
-          <div className="absolute top-8 right-12 flex gap-2">
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="absolute top-8 right-12 flex gap-2"
+          >
             <button className="px-3 py-2 text-[14px] font-medium text-white bg-[#2563EB] rounded-lg shadow-sm hover:bg-blue-700 transition">
               Login
             </button>
             <Link to="/register-candidate" className="px-3 py-2 text-[14px] font-medium text-[#1A1A1A] bg-white border border-gray-200 rounded-lg shadow-sm hover:bg-gray-50 transition">
               Sign Up
             </Link>
-          </div>
+          </motion.div>
 
-          <div className="max-w-md mx-auto w-full">
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="max-w-md mx-auto w-full"
+          >
             {/* Judul Form */}
-            <h2 className="text-[30px] font-normal text-[#101828] leading-[36px]">Sign In</h2>
-            <p className="text-[#4A5565] text-[16px] font-normal leading-[24px] mt-2">
+            <motion.h2 variants={itemVariants} className="text-[30px] font-normal text-[#101828] leading-[36px]">Sign In</motion.h2>
+            <motion.p variants={itemVariants} className="text-[#4A5565] text-[16px] font-normal leading-[24px] mt-2">
               Enter your credentials to access your account
-            </p>
+            </motion.p>
 
             {/* Toggle Role */}
-            <div className="bg-gray-100 p-1 rounded-full flex mt-8 h-[40px]">
-              <button className="w-1/2 py-1 text-center rounded-full text-[14px] font-medium text-[#1A1A1A] bg-white shadow transition">
+            <motion.div variants={itemVariants} className="bg-gray-100 p-1 rounded-full flex mt-8 h-[40px]">
+              <button className="w-1/2 py-1 text-center rounded-full text-[14px] font-medium text-[#1A1A1A] bg-white shadow transition-all duration-300 transform">
                 Candidate
               </button>
-              <Link to="/login-recruiter" className="w-1/2 py-1 text-center rounded-full text-[14px] font-medium text-[#64748B] hover:text-[#1A1A1A] transition">
+              <Link to="/login-recruiter" className="w-1/2 py-1 text-center rounded-full text-[14px] font-medium text-[#64748B] hover:text-[#1A1A1A] transition-all duration-300 flex items-center justify-center">
                 Company
               </Link>
-            </div>
+            </motion.div>
 
             {/* Form */}
             <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
               
               {/* API Error */}
               {apiError && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-3 bg-red-50 border border-red-200 rounded-lg"
+                >
                   <p className="text-red-600 text-sm">{apiError}</p>
-                </div>
+                </motion.div>
               )}
 
               {/* Email */}
-              <div>
+              <motion.div variants={itemVariants}>
                 <label className="block text-[14px] font-medium text-[#1A1A1A] mb-2">Email Address</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -174,10 +218,10 @@ export default function LoginCandidate() {
                   />
                 </div>
                 {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-              </div>
+              </motion.div>
 
               {/* Password */}
-              <div>
+              <motion.div variants={itemVariants}>
                 <label className="block text-[14px] font-medium text-[#1A1A1A] mb-2">Password</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -196,10 +240,10 @@ export default function LoginCandidate() {
                   </button>
                 </div>
                 {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-              </div>
+              </motion.div>
 
               {/* Remember Me & Forgot Password */}
-              <div className="flex items-center justify-between">
+              <motion.div variants={itemVariants} className="flex items-center justify-between">
                 <div className="flex items-center">
                   <input 
                     id="rememberMe" 
@@ -213,10 +257,13 @@ export default function LoginCandidate() {
                 <Link to="/forgot-password" className="text-[14px] font-medium text-[#155DFC] hover:underline">
                   Forgot password?
                 </Link>
-              </div>
+              </motion.div>
 
               {/* Submit Button */}
-              <button 
+              <motion.button 
+                variants={itemVariants}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 type="submit" 
                 disabled={isLoading}
                 className="w-full h-[40px] flex justify-center items-center py-2 px-4 rounded-lg shadow-sm text-[14px] font-medium text-white bg-[#155DFC] hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition disabled:opacity-70 disabled:cursor-not-allowed"
@@ -229,16 +276,17 @@ export default function LoginCandidate() {
                 ) : (
                   'Sign In as Candidate'
                 )}
-              </button>
+              </motion.button>
+
             </form>
 
             {/* Footer Link */}
-            <div className="text-center mt-8">
+            <motion.div variants={itemVariants} className="text-center mt-8">
               <p className="text-[16px] font-normal text-[#4A5565]">
                 Don't have an account? <Link to="/register-candidate" className="font-medium text-[#155DFC] hover:underline">Sign up</Link>
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
     </div>

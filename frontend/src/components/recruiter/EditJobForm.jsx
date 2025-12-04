@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, Save, User, Info, Briefcase, DollarSign, Loader2 } from 'lucide-react';
-import SuccessNotification from '../common/SuccessNotification';
 
 export default function EditJobForm({ isOpen, onClose, jobData, onSave }) {
-  // State Form (Struktur data SAMA PERSIS dengan CreateJob.jsx)
+  // State Form - maps frontend names to API field names
   const [formData, setFormData] = useState({
     judul: '',
     perusahaan: '',
@@ -22,20 +21,39 @@ export default function EditJobForm({ isOpen, onClose, jobData, onSave }) {
     deskripsi: '',
     tanggungJawab: '',
     persyaratan: '',
-    benefit: ''
+    benefit: '',
+    status: ''
   });
 
   // State untuk UI Feedback
   const [isLoading, setIsLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Load data saat modal dibuka
+  // Load data saat modal dibuka - map API data to form fields
   useEffect(() => {
     if (jobData) {
       setFormData({
-        ...formData, // Default values
-        ...jobData   // Override dengan data dari props
+        judul: jobData.judul || jobData.title || '',
+        perusahaan: jobData.perusahaan || jobData.company_name || '',
+        lokasi: jobData.lokasi || jobData.location || '',
+        departemen: jobData.departemen || jobData.department || '',
+        tipe: jobData.tipe || jobData.type || '',
+        mode: jobData.mode || '',
+        level: jobData.level || jobData.seniority_level || '',
+        deadline: jobData.deadline || '',
+        durasi: jobData.durasi || jobData.duration || '',
+        gajiMin: jobData.gajiMin || jobData.salary_min || '',
+        gajiMax: jobData.gajiMax || jobData.salary_max || '',
+        contactName: jobData.contactName || jobData.contact_name || '',
+        contactEmail: jobData.contactEmail || jobData.contact_email || '',
+        contactPhone: jobData.contactPhone || jobData.contact_phone || '',
+        deskripsi: jobData.deskripsi || jobData.description || '',
+        tanggungJawab: jobData.tanggungJawab || jobData.responsibilities || '',
+        persyaratan: jobData.persyaratan || jobData.requirements || '',
+        benefit: jobData.benefit || jobData.benefits || '',
+        status: jobData.rawStatus || jobData.status || 'active',
       });
+      setError(null);
     }
   }, [jobData]);
 
@@ -44,35 +62,26 @@ export default function EditJobForm({ isOpen, onClose, jobData, onSave }) {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
-    // Simulasi proses update API
-    setTimeout(() => {
+    try {
+      // Pass form data to parent - parent handles the API call
+      await onSave(formData);
+    } catch (err) {
+      console.error('Error saving job:', err);
+      setError(err.message || 'Failed to save changes');
+    } finally {
       setIsLoading(false);
-      setShowSuccess(true);
-
-      // Tunggu sebentar agar notifikasi terlihat sebelum modal ditutup
-      setTimeout(() => {
-        onSave(formData);
-        setShowSuccess(false); // Reset state
-      }, 2000);
-    }, 1000);
+    }
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200">
-      
-      {/* Notifikasi Sukses */}
-      {showSuccess && (
-        <SuccessNotification 
-          message="Lowongan berhasil diperbarui!" 
-          onClose={() => setShowSuccess(false)} 
-        />
-      )}
 
       {/* MODAL SIZE: Diperbesar jadi max-w-4xl */}
       <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl flex flex-col max-h-[90vh]">
@@ -80,13 +89,20 @@ export default function EditJobForm({ isOpen, onClose, jobData, onSave }) {
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-white rounded-t-2xl sticky top-0 z-10">
           <div>
-            <h3 className="text-xl font-bold text-gray-900">Edit Lowongan</h3>
-            <p className="text-sm text-gray-500">Perbarui informasi lowongan pekerjaan</p>
+            <h3 className="text-xl font-bold text-gray-900">Edit Job Posting</h3>
+            <p className="text-sm text-gray-500">Update job posting information</p>
           </div>
           <button onClick={onClose} disabled={isLoading} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition disabled:opacity-50">
             <X size={24} />
           </button>
         </div>
+
+        {/* Error Alert */}
+        {error && (
+          <div className="mx-8 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
+            {error}
+          </div>
+        )}
 
         {/* Content (Scrollable) */}
         <div className="p-8 overflow-y-auto space-y-8">
