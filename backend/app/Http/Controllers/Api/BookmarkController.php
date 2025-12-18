@@ -8,7 +8,7 @@ use App\Models\Bookmark;
 use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
-class KontrollerBookmark extends Controller
+class BookmarkController extends Controller
 {
     /**
      * Get all bookmarked jobs

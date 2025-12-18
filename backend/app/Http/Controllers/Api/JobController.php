@@ -11,7 +11,7 @@ use App\Http\Resources\LowonganResource;
 use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
-class KontrollerLowongan extends Controller
+class JobController extends Controller
 {
     /**
      * List all active jobs (public)

@@ -9,7 +9,7 @@ import LayoutKandidat from "./layouts/LayoutKandidat.jsx";
 import LayoutRekruter from "./layouts/LayoutRekruter.jsx";
 
 // --- Halaman Kandidat ---
-import DaftarLamaranSaya from "./pages/kandidat/DaftarLamaranSaya.jsx";
+import MyList from "./pages/kandidat/MyList.jsx";
 import DetailLowongan from "./pages/kandidat/DetailLowongan.jsx";
 import Beranda from "./pages/kandidat/Beranda.jsx";
 import ProfilKandidat from "./pages/kandidat/ProfilKandidat.jsx";
@@ -35,7 +35,7 @@ function AppRoutes() {
       {/*  RUTE KANDIDAT (Protected) */}
       <Route path="/" element={<ProtectedRoute allowedRoles={['kandidat']}><LayoutKandidat /></ProtectedRoute>}>
         <Route index element={<Navigate to="/homepage-candidate" replace />} />
-        <Route path="my-list" element={<DaftarLamaranSaya />} />
+        <Route path="my-list" element={<MyList />} />
         <Route path="profile-candidate" element={<ProfilKandidat />} />
         <Route path="job/:id" element={<DetailLowongan />} />
         <Route path="homepage-candidate" element={<Beranda />} />

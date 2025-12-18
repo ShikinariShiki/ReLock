@@ -11,7 +11,7 @@ use App\Models\Lowongan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class KontrollerLamaran extends Controller
+class JobApplicationController extends Controller
 {
     /**
      * Apply for a job (candidate only)

@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
-class KontrollerAuth extends Controller
+class AuthController extends Controller
 {
     /**
      * Register a new candidate

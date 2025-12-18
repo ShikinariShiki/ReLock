@@ -11,7 +11,7 @@ use App\Models\Kandidat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class KontrollerKandidat extends Controller
+class CandidateController extends Controller
 {
     /**
      * List all candidates (admin use)

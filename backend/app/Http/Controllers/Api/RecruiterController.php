@@ -10,7 +10,7 @@ use App\Http\Resources\RekruterResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class KontrollerRekruter extends Controller
+class RecruiterController extends Controller
 {
     /**
      * Get current recruiter's profile
