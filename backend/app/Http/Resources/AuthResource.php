@@ -19,7 +19,7 @@ class AuthResource extends JsonResource
 
     public function toArray(Request $request): array
     {
-        $user = [
+        $akun = [
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
@@ -29,15 +29,15 @@ class AuthResource extends JsonResource
         ];
 
         // Add profile based on role
-        if ($this->role === 'candidate' && $this->relationLoaded('candidate')) {
-            $user['profile'] = new CandidateResource($this->candidate);
-        } elseif ($this->role === 'recruiter' && $this->relationLoaded('recruiter')) {
-            $user['profile'] = new RecruiterResource($this->recruiter);
+        if ($this->role === 'kandidat' && $this->relationLoaded('kandidat')) {
+            $akun['profile'] = new KandidatResource($this->candidate);
+        } elseif ($this->role === 'rekruter' && $this->relationLoaded('rekruter')) {
+            $akun['profile'] = new RekruterResource($this->recruiter);
         }
 
         $response = [
             'message' => $this->message,
-            'user' => $user,
+            'user' => $akun,
         ];
 
         if ($this->token) {

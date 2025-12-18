@@ -18,9 +18,9 @@ class TambahLowonganController extends Controller
      */
     public function __invoke(StoreJobRequest $request)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
 
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Recruiter profile not found',
                 'error' => 'not_found',
@@ -43,9 +43,9 @@ class TambahLowonganController extends Controller
             $benefits = json_encode($benefits);
         }
 
-        $job = $recruiter->jobListings()->create([
+        $lowongan = $rekruter->jobListings()->create([
             'title' => $request->title,
-            'company_name' => $request->company_name ?? $recruiter->company_name,
+            'company_name' => $request->company_name ?? $rekruter->company_name,
             'location' => $request->location,
             'department' => $request->department ?? 'General',
             'type' => $request->type,
@@ -67,7 +67,7 @@ class TambahLowonganController extends Controller
 
         return response()->json([
             'message' => 'Job listing created successfully',
-            'job' => new JobListingResource($job->load('recruiter')),
+            'job' => new LowonganResource($lowongan->load('rekruter')),
         ], 201);
     }
 }

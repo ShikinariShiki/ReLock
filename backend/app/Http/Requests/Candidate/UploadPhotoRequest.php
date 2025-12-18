@@ -11,7 +11,7 @@ class UploadPhotoRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user() && $this->user()->role === 'candidate';
+        return $this->user() && $this->user()->role === 'kandidat';
     }
 
     /**

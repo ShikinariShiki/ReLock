@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\JobListingResource;
 use App\Models\Bookmark;
-use App\Models\JobListing;
+use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
 class BookmarkController extends Controller
@@ -15,31 +15,31 @@ class BookmarkController extends Controller
      */
     public function index(Request $request)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        $bookmarkedJobs = $candidate->bookmarkedJobs()
-            ->with('recruiter')
+        $bookmarkedJobs = $kandidat->bookmarkedJobs()
+            ->with('rekruter')
             ->orderBy('bookmarks.created_at', 'desc')
             ->paginate(10);
 
-        return JobListingResource::collection($bookmarkedJobs);
+        return LowonganResource::collection($bookmarkedJobs);
     }
 
     /**
      * Toggle bookmark for a job
      */
-    public function toggle(Request $request, $jobId)
+    public function toggle(Request $request, $lowonganId)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
@@ -47,10 +47,10 @@ class BookmarkController extends Controller
         }
 
         // Check if job exists
-        $job = JobListing::findOrFail($jobId);
+        $lowongan = Lowongan::findOrFail($lowonganId);
 
-        $bookmark = Bookmark::where('candidate_id', $candidate->id)
-            ->where('job_listing_id', $jobId)
+        $bookmark = Bookmark::where('candidate_id', $kandidat->id)
+            ->where('job_listing_id', $lowonganId)
             ->first();
 
         if ($bookmark) {
@@ -63,8 +63,8 @@ class BookmarkController extends Controller
         } else {
             // Add bookmark
             Bookmark::create([
-                'candidate_id' => $candidate->id,
-                'job_listing_id' => $jobId,
+                'candidate_id' => $kandidat->id,
+                'job_listing_id' => $lowonganId,
             ]);
             return response()->json([
                 'message' => 'Job bookmarked successfully',
@@ -76,18 +76,18 @@ class BookmarkController extends Controller
     /**
      * Check if a job is bookmarked
      */
-    public function check(Request $request, $jobId)
+    public function check(Request $request, $lowonganId)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'bookmarked' => false,
             ]);
         }
 
-        $isBookmarked = Bookmark::where('candidate_id', $candidate->id)
-            ->where('job_listing_id', $jobId)
+        $isBookmarked = Bookmark::where('candidate_id', $kandidat->id)
+            ->where('job_listing_id', $lowonganId)
             ->exists();
 
         return response()->json([

@@ -7,7 +7,7 @@ use App\Http\Requests\Candidate\UpdateProfileRequest;
 use App\Http\Requests\Candidate\UploadCvRequest;
 use App\Http\Resources\CandidateResource;
 use App\Http\Resources\JobApplicationResource;
-use App\Models\Candidate;
+use App\Models\Kandidat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,9 +18,9 @@ class CandidateController extends Controller
      */
     public function index()
     {
-        $candidates = Candidate::with('user')->paginate(20);
+        $kandidats = Kandidat::with('user')->paginate(20);
         
-        return CandidateResource::collection($candidates);
+        return KandidatResource::collection($kandidats);
     }
 
     /**
@@ -28,16 +28,16 @@ class CandidateController extends Controller
      */
     public function show(Request $request)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
         
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        return new CandidateResource($candidate->load('user'));
+        return new KandidatResource($kandidat->load('user'));
     }
 
     /**
@@ -45,28 +45,28 @@ class CandidateController extends Controller
      */
     public function update(UpdateProfileRequest $request)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        $candidate->update($request->validated());
+        $kandidat->update($request->validated());
 
         // Update user name if first/last name changed
         if ($request->has('first_name') || $request->has('last_name')) {
             $request->user()->update([
-                'name' => ($request->first_name ?? $candidate->first_name) . ' ' . 
-                         ($request->last_name ?? $candidate->last_name),
+                'name' => ($request->first_name ?? $kandidat->first_name) . ' ' . 
+                         ($request->last_name ?? $kandidat->last_name),
             ]);
         }
 
         return response()->json([
             'message' => 'Profile updated successfully',
-            'candidate' => new CandidateResource($candidate->fresh()->load('user')),
+            'kandidat' => new KandidatResource($kandidat->fresh()->load('user')),
         ]);
     }
 
@@ -75,9 +75,9 @@ class CandidateController extends Controller
      */
     public function uploadCv(UploadCvRequest $request)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
@@ -85,12 +85,12 @@ class CandidateController extends Controller
         }
 
         // Delete old CV if exists
-        if ($candidate->cv_path) {
-            Storage::disk('public')->delete($candidate->cv_path);
+        if ($kandidat->cv_path) {
+            Storage::disk('public')->delete($kandidat->cv_path);
         }
 
         $path = $request->file('cv')->store('cvs', 'public');
-        $candidate->update(['cv_path' => $path]);
+        $kandidat->update(['cv_path' => $path]);
 
         return response()->json([
             'message' => 'CV uploaded successfully',
@@ -108,9 +108,9 @@ class CandidateController extends Controller
             'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
         ]);
 
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
@@ -118,12 +118,12 @@ class CandidateController extends Controller
         }
 
         // Delete old photo if exists
-        if ($candidate->profile_photo) {
-            Storage::disk('public')->delete($candidate->profile_photo);
+        if ($kandidat->profile_photo) {
+            Storage::disk('public')->delete($kandidat->profile_photo);
         }
 
         $path = $request->file('photo')->store('photos', 'public');
-        $candidate->update(['profile_photo' => $path]);
+        $kandidat->update(['profile_photo' => $path]);
 
         return response()->json([
             'message' => 'Photo uploaded successfully',
@@ -137,20 +137,20 @@ class CandidateController extends Controller
      */
     public function myApplications(Request $request)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        $applications = $candidate->applications()
+        $lamarans = $kandidat->applications()
             ->with(['jobListing.recruiter'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return JobApplicationResource::collection($applications);
+        return LamaranResource::collection($lamarans);
     }
 }

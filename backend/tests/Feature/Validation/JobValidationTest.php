@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Validation;
 
-use App\Models\Candidate;
-use App\Models\JobListing;
-use App\Models\Recruiter;
-use App\Models\User;
+use App\Models\Kandidat;
+use App\Models\Lowongan;
+use App\Models\Rekruter;
+use App\Models\Akun;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -15,16 +15,16 @@ class JobValidationTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected User $recruiterUser;
-    protected Recruiter $recruiter;
+    protected Akun $rekruterUser;
+    protected Rekruter $rekruter;
 
     protected function setUp(): void
     {
         parent::setUp();
         
         // Create recruiter for testing
-        $this->recruiterUser = User::factory()->recruiter()->create();
-        $this->recruiter = Recruiter::factory()->forUser($this->recruiterUser)->create();
+        $this->recruiterUser = Akun::factory()->recruiter()->create();
+        $this->recruiter = Rekruter::factory()->forUser($this->recruiterUser)->create();
     }
 
     // ==========================================
@@ -245,10 +245,10 @@ class JobValidationTest extends TestCase
     /** @test */
     public function update_job_type_must_be_valid(): void
     {
-        $job = JobListing::factory()->create(['recruiter_id' => $this->recruiter->id]);
+        $lowongan = Lowongan::factory()->create(['recruiter_id' => $this->recruiter->id]);
 
         $response = $this->actingAs($this->recruiterUser)
-            ->putJson("/api/v1/jobs/{$job->id}", [
+            ->putJson("/api/v1/jobs/{$lowongan->id}", [
                 'type' => 'InvalidType',
             ]);
 
@@ -259,10 +259,10 @@ class JobValidationTest extends TestCase
     /** @test */
     public function update_job_with_valid_partial_data(): void
     {
-        $job = JobListing::factory()->create(['recruiter_id' => $this->recruiter->id]);
+        $lowongan = Lowongan::factory()->create(['recruiter_id' => $this->recruiter->id]);
 
         $response = $this->actingAs($this->recruiterUser)
-            ->putJson("/api/v1/jobs/{$job->id}", [
+            ->putJson("/api/v1/jobs/{$lowongan->id}", [
                 'title' => 'Updated Title',
             ]);
 
@@ -277,10 +277,10 @@ class JobValidationTest extends TestCase
     /** @test */
     public function candidate_cannot_create_job(): void
     {
-        $candidateUser = User::factory()->candidate()->create();
-        Candidate::factory()->forUser($candidateUser)->create();
+        $kandidatUser = Akun::factory()->candidate()->create();
+        Kandidat::factory()->forUser($kandidatUser)->create();
 
-        $response = $this->actingAs($candidateUser)
+        $response = $this->actingAs($kandidatUser)
             ->postJson('/api/v1/jobs', [
                 'title' => 'Software Engineer',
                 'company_name' => 'Tech Corp',

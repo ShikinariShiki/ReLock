@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
+use App\Models\Akun;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -16,10 +16,10 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            CandidateSeeder::class,
-            RecruiterSeeder::class,
-            JobListingSeeder::class,
-            JobApplicationSeeder::class,
+            KandidatSeeder::class,
+            RekruterSeeder::class,
+            LowonganSeeder::class,
+            LamaranSeeder::class,
         ]);
 
         $this->command->info('Database seeded successfully!');

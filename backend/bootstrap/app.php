@@ -20,8 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Alias middleware
         $middleware->alias([
-            'candidate' => \App\Http\Middleware\EnsureIsCandidate::class,
-            'recruiter' => \App\Http\Middleware\EnsureIsRecruiter::class,
+            'kandidat' => \App\Http\Middleware\EnsureIsKandidat::class,
+            'rekruter' => \App\Http\Middleware\EnsureIsRekruter::class,
             'force.json' => \App\Http\Middleware\ForceJsonResponse::class,
             'security.headers' => \App\Http\Middleware\SecurityHeaders::class,
         ]);

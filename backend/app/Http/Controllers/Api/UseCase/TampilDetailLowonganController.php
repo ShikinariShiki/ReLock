@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\UseCase;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\JobListingResource;
-use App\Models\JobListing;
+use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
 /**
@@ -18,10 +18,10 @@ class TampilDetailLowonganController extends Controller
      */
     public function __invoke(Request $request, $id)
     {
-        $job = JobListing::with('recruiter.user')->findOrFail($id);
+        $lowongan = Lowongan::with('recruiter.user')->findOrFail($id);
 
         return response()->json([
-            'job' => new JobListingResource($job),
+            'job' => new LowonganResource($lowongan),
         ]);
     }
 }

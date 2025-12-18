@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\UseCase;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\JobListingResource;
-use App\Models\JobListing;
+use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
 /**
@@ -18,7 +18,7 @@ class PencarianLowonganController extends Controller
      */
     public function __invoke(Request $request)
     {
-        $query = JobListing::with('recruiter')
+        $query = Lowongan::with('rekruter')
             ->active();
 
         // Search by title or company
@@ -71,15 +71,15 @@ class PencarianLowonganController extends Controller
 
         // Pagination
         $perPage = $request->get('per_page', 15);
-        $jobs = $query->paginate($perPage);
+        $lowongans = $query->paginate($perPage);
 
         return response()->json([
-            'data' => JobListingResource::collection($jobs),
+            'data' => LowonganResource::collection($lowongans),
             'meta' => [
-                'current_page' => $jobs->currentPage(),
-                'last_page' => $jobs->lastPage(),
-                'per_page' => $jobs->perPage(),
-                'total' => $jobs->total(),
+                'current_page' => $lowongans->currentPage(),
+                'last_page' => $lowongans->lastPage(),
+                'per_page' => $lowongans->perPage(),
+                'total' => $lowongans->total(),
             ],
         ]);
     }

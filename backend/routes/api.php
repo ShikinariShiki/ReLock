@@ -103,7 +103,7 @@ Route::prefix('v1')->group(function () {
         // ==========================================
         // CANDIDATE ROUTES
         // ==========================================
-        Route::prefix('candidate')->middleware('candidate')->group(function () {
+        Route::prefix('kandidat')->middleware('kandidat')->group(function () {
             
             // USE CASE: UpdateCandidateProfile
             Route::get('/profile', [UpdateCandidateProfileController::class, 'show']);
@@ -126,7 +126,7 @@ Route::prefix('v1')->group(function () {
         // ==========================================
         // RECRUITER ROUTES
         // ==========================================
-        Route::prefix('recruiter')->middleware('recruiter')->group(function () {
+        Route::prefix('rekruter')->middleware('rekruter')->group(function () {
             
             // USE CASE: UpdateCompanyProfile
             Route::get('/profile', [UpdateCompanyProfileController::class, 'show']);
@@ -138,7 +138,7 @@ Route::prefix('v1')->group(function () {
         // ==========================================
         // JOB MANAGEMENT (Recruiter only)
         // ==========================================
-        Route::middleware('recruiter')->group(function () {
+        Route::middleware('rekruter')->group(function () {
             // USE CASE: TambahLowongan
             Route::post('/jobs', TambahLowonganController::class);
             
@@ -155,12 +155,12 @@ Route::prefix('v1')->group(function () {
         // ==========================================
         // USE CASE: ApplyLamaran (Candidate only)
         // ==========================================
-        Route::post('/jobs/{jobId}/apply', ApplyLamaranController::class)->middleware('candidate');
+        Route::post('/jobs/{jobId}/apply', ApplyLamaranController::class)->middleware('kandidat');
 
         // ==========================================
         // USE CASE: UbahStatusLamaran (Recruiter only)
         // ==========================================
-        Route::put('/applications/{id}/status', UbahStatusLamaranController::class)->middleware('recruiter');
+        Route::put('/applications/{id}/status', UbahStatusLamaranController::class)->middleware('rekruter');
     });
 });
 

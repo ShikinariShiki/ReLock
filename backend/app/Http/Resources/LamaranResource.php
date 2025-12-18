@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
-class JobApplicationResource extends JsonResource
+class LamaranResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
@@ -19,8 +19,8 @@ class JobApplicationResource extends JsonResource
             'status_label' => $this->getStatusLabel(),
             'status_color' => $this->getStatusColor(),
             'notes' => $this->notes,
-            'candidate' => new CandidateResource($this->whenLoaded('candidate')),
-            'job_listing' => new JobListingResource($this->whenLoaded('jobListing')),
+            'kandidat' => new KandidatResource($this->whenLoaded('kandidat')),
+            'job_listing' => new LowonganResource($this->whenLoaded('jobListing')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'applied_at' => $this->created_at?->format('M d, Y'),

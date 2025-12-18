@@ -4,20 +4,20 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
-use App\Models\Candidate;
+use App\Models\Akun;
+use App\Models\Kandidat;
 
-class CandidateSeeder extends Seeder
+class KandidatSeeder extends Seeder
 {
     public function run(): void
     {
-        $candidates = [
+        $kandidats = [
             [
                 'user' => [
                     'name' => 'John Doe',
                     'email' => 'john@example.com',
                     'password' => Hash::make('password123'),
-                    'role' => 'candidate',
+                    'role' => 'kandidat',
                 ],
                 'profile' => [
                     'first_name' => 'John',
@@ -63,7 +63,7 @@ class CandidateSeeder extends Seeder
                     'name' => 'Sarah Wilson',
                     'email' => 'sarah@example.com',
                     'password' => Hash::make('password123'),
-                    'role' => 'candidate',
+                    'role' => 'kandidat',
                 ],
                 'profile' => [
                     'first_name' => 'Sarah',
@@ -109,7 +109,7 @@ class CandidateSeeder extends Seeder
                     'name' => 'Michael Chen',
                     'email' => 'michael@example.com',
                     'password' => Hash::make('password123'),
-                    'role' => 'candidate',
+                    'role' => 'kandidat',
                 ],
                 'profile' => [
                     'first_name' => 'Michael',
@@ -152,10 +152,10 @@ class CandidateSeeder extends Seeder
             ],
         ];
 
-        foreach ($candidates as $data) {
-            $user = User::create($data['user']);
-            $data['profile']['user_id'] = $user->id;
-            Candidate::create($data['profile']);
+        foreach ($kandidats as $data) {
+            $akun = Akun::create($data['user']);
+            $data['profile']['user_id'] = $akun->id;
+            Kandidat::create($data['profile']);
         }
     }
 }

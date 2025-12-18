@@ -2,18 +2,18 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
+use App\Models\Akun;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Recruiter>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Rekruter>
  */
-class RecruiterFactory extends Factory
+class RekruterFactory extends Factory
 {
     public function definition(): array
     {
         return [
-            'user_id' => User::factory()->recruiter(),
+            'akun_id' => Akun::factory()->rekruter(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
             'company_name' => fake()->company(),
@@ -27,12 +27,12 @@ class RecruiterFactory extends Factory
     }
 
     /**
-     * Associate with existing user
+     * Associate with existing akun
      */
-    public function forUser(User $user): static
+    public function forAkun(Akun $akun): static
     {
         return $this->state(fn (array $attributes) => [
-            'user_id' => $user->id,
+            'akun_id' => $akun->id,
         ]);
     }
 }

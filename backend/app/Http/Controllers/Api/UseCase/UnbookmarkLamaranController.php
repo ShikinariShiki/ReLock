@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\UseCase;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bookmark;
-use App\Models\JobListing;
+use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
 /**
@@ -16,11 +16,11 @@ class UnbookmarkLamaranController extends Controller
     /**
      * Remove job from bookmarks
      */
-    public function __invoke(Request $request, $jobId)
+    public function __invoke(Request $request, $lowonganId)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
@@ -28,11 +28,11 @@ class UnbookmarkLamaranController extends Controller
         }
 
         // Check if job exists
-        JobListing::findOrFail($jobId);
+        Lowongan::findOrFail($lowonganId);
 
         // Find and delete bookmark
-        $bookmark = Bookmark::where('candidate_id', $candidate->id)
-            ->where('job_listing_id', $jobId)
+        $bookmark = Bookmark::where('candidate_id', $kandidat->id)
+            ->where('job_listing_id', $lowonganId)
             ->first();
 
         if (!$bookmark) {

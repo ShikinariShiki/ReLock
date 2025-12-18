@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\UseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\JobApplicationResource;
 use App\Http\Resources\JobListingResource;
-use App\Models\JobListing;
+use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
 /**
@@ -19,27 +19,27 @@ class LihatPelamarController extends Controller
      */
     public function __invoke(Request $request, $id)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
 
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Only recruiters can view applicants',
                 'error' => 'forbidden',
             ], 403);
         }
 
-        $job = JobListing::where('id', $id)
-            ->where('recruiter_id', $recruiter->id)
+        $lowongan = Lowongan::where('id', $id)
+            ->where('recruiter_id', $rekruter->id)
             ->firstOrFail();
 
-        $applicants = $job->applications()
+        $applicants = $lowongan->applications()
             ->with(['candidate.user'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
         return response()->json([
-            'job' => new JobListingResource($job),
-            'applicants' => JobApplicationResource::collection($applicants),
+            'job' => new LowonganResource($lowongan),
+            'applicants' => LamaranResource::collection($applicants),
             'meta' => [
                 'total' => $applicants->total(),
                 'per_page' => $applicants->perPage(),

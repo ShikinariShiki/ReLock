@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\UseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
+use App\Models\Akun;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -20,9 +20,9 @@ class LoginUserController extends Controller
      */
     public function login(LoginRequest $request)
     {
-        $user = User::where('email', $request->email)->first();
+        $akun = Akun::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (!$akun || !Hash::check($request->password, $akun->password)) {
             return response()->json([
                 'message' => 'Invalid credentials',
                 'errors' => ['email' => ['The provided credentials are incorrect.']],
@@ -30,18 +30,18 @@ class LoginUserController extends Controller
         }
 
         // Load relationship based on role
-        if ($user->role === 'candidate') {
-            $user->load('candidate');
+        if ($akun->role === 'kandidat') {
+            $akun->load('kandidat');
         } else {
-            $user->load('recruiter');
+            $akun->load('rekruter');
         }
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $token = $akun->createToken('auth-token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login successful',
             'data' => [
-                'user' => new UserResource($user),
+                'user' => new AkunResource($akun),
                 'token' => $token,
             ],
         ]);
@@ -64,17 +64,17 @@ class LoginUserController extends Controller
      */
     public function me(Request $request)
     {
-        $user = $request->user();
+        $akun = $request->user();
 
-        if ($user->role === 'candidate') {
-            $user->load('candidate');
+        if ($akun->role === 'kandidat') {
+            $akun->load('kandidat');
         } else {
-            $user->load('recruiter');
+            $akun->load('rekruter');
         }
 
         return response()->json([
             'data' => [
-                'user' => new UserResource($user),
+                'user' => new AkunResource($akun),
             ],
         ]);
     }

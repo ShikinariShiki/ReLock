@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Validation;
 
-use App\Models\Candidate;
-use App\Models\JobListing;
-use App\Models\Recruiter;
-use App\Models\User;
+use App\Models\Kandidat;
+use App\Models\Lowongan;
+use App\Models\Rekruter;
+use App\Models\Akun;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -13,22 +13,22 @@ class BookmarkValidationTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected User $candidateUser;
-    protected Candidate $candidate;
-    protected JobListing $job;
+    protected Akun $kandidatUser;
+    protected Kandidat $kandidat;
+    protected Lowongan $lowongan;
 
     protected function setUp(): void
     {
         parent::setUp();
         
         // Create candidate for testing
-        $this->candidateUser = User::factory()->candidate()->create();
-        $this->candidate = Candidate::factory()->forUser($this->candidateUser)->create();
+        $this->candidateUser = Akun::factory()->candidate()->create();
+        $this->candidate = Kandidat::factory()->forUser($this->candidateUser)->create();
         
         // Create job for testing
-        $recruiterUser = User::factory()->recruiter()->create();
-        $recruiter = Recruiter::factory()->forUser($recruiterUser)->create();
-        $this->job = JobListing::factory()->create(['recruiter_id' => $recruiter->id]);
+        $rekruterUser = Akun::factory()->recruiter()->create();
+        $rekruter = Rekruter::factory()->forUser($rekruterUser)->create();
+        $this->job = Lowongan::factory()->create(['recruiter_id' => $rekruter->id]);
     }
 
     // ==========================================
@@ -119,10 +119,10 @@ class BookmarkValidationTest extends TestCase
     /** @test */
     public function recruiter_cannot_bookmark_job(): void
     {
-        $recruiterUser = User::factory()->recruiter()->create();
-        Recruiter::factory()->forUser($recruiterUser)->create();
+        $rekruterUser = Akun::factory()->recruiter()->create();
+        Rekruter::factory()->forUser($rekruterUser)->create();
 
-        $response = $this->actingAs($recruiterUser)
+        $response = $this->actingAs($rekruterUser)
             ->postJson("/api/v1/candidate/bookmarks/{$this->job->id}");
 
         $response->assertStatus(403);

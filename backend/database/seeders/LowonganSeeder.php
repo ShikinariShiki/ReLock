@@ -3,25 +3,25 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\Recruiter;
-use App\Models\JobListing;
+use App\Models\Rekruter;
+use App\Models\Lowongan;
 
-class JobListingSeeder extends Seeder
+class LowonganSeeder extends Seeder
 {
     public function run(): void
     {
         // Get recruiters
-        $recruiters = Recruiter::all();
+        $rekruters = Rekruter::all();
 
-        if ($recruiters->isEmpty()) {
+        if ($rekruters->isEmpty()) {
             $this->command->warn('No recruiters found. Please run RecruiterSeeder first.');
             return;
         }
 
-        $jobs = [
+        $lowongans = [
             // Jobs for Tech Corp (recruiter 1)
             [
-                'recruiter_id' => $recruiters[0]->id ?? 1,
+                'recruiter_id' => $rekruters[0]->id ?? 1,
                 'title' => 'Senior Full Stack Developer',
                 'company_name' => 'Tech Corp Indonesia',
                 'location' => 'Jakarta, Indonesia',
@@ -43,7 +43,7 @@ class JobListingSeeder extends Seeder
                 'status' => 'active',
             ],
             [
-                'recruiter_id' => $recruiters[0]->id ?? 1,
+                'recruiter_id' => $rekruters[0]->id ?? 1,
                 'title' => 'DevOps Engineer',
                 'company_name' => 'Tech Corp Indonesia',
                 'location' => 'Jakarta, Indonesia',
@@ -67,7 +67,7 @@ class JobListingSeeder extends Seeder
 
             // Jobs for Startup Hub (recruiter 2)
             [
-                'recruiter_id' => $recruiters[1]->id ?? 2,
+                'recruiter_id' => $rekruters[1]->id ?? 2,
                 'title' => 'Frontend Developer (React)',
                 'company_name' => 'Startup Hub',
                 'location' => 'Bandung, Indonesia',
@@ -89,7 +89,7 @@ class JobListingSeeder extends Seeder
                 'status' => 'active',
             ],
             [
-                'recruiter_id' => $recruiters[1]->id ?? 2,
+                'recruiter_id' => $rekruters[1]->id ?? 2,
                 'title' => 'UI/UX Designer',
                 'company_name' => 'Startup Hub',
                 'location' => 'Bandung, Indonesia',
@@ -113,7 +113,7 @@ class JobListingSeeder extends Seeder
 
             // Jobs for Global Finance (recruiter 3)
             [
-                'recruiter_id' => $recruiters[2]->id ?? 3,
+                'recruiter_id' => $rekruters[2]->id ?? 3,
                 'title' => 'Data Analyst',
                 'company_name' => 'Global Finance Indonesia',
                 'location' => 'Jakarta, Indonesia',
@@ -135,7 +135,7 @@ class JobListingSeeder extends Seeder
                 'status' => 'active',
             ],
             [
-                'recruiter_id' => $recruiters[2]->id ?? 3,
+                'recruiter_id' => $rekruters[2]->id ?? 3,
                 'title' => 'Backend Engineer (Java)',
                 'company_name' => 'Global Finance Indonesia',
                 'location' => 'Jakarta, Indonesia',
@@ -157,7 +157,7 @@ class JobListingSeeder extends Seeder
                 'status' => 'active',
             ],
             [
-                'recruiter_id' => $recruiters[0]->id ?? 1,
+                'recruiter_id' => $rekruters[0]->id ?? 1,
                 'title' => 'Mobile Developer (Flutter)',
                 'company_name' => 'Tech Corp Indonesia',
                 'location' => 'Jakarta, Indonesia',
@@ -179,7 +179,7 @@ class JobListingSeeder extends Seeder
                 'status' => 'active',
             ],
             [
-                'recruiter_id' => $recruiters[1]->id ?? 2,
+                'recruiter_id' => $rekruters[1]->id ?? 2,
                 'title' => 'Marketing Intern',
                 'company_name' => 'Startup Hub',
                 'location' => 'Bandung, Indonesia',
@@ -202,8 +202,8 @@ class JobListingSeeder extends Seeder
             ],
         ];
 
-        foreach ($jobs as $job) {
-            JobListing::create($job);
+        foreach ($lowongans as $lowongan) {
+            Lowongan::create($lowongan);
         }
     }
 }

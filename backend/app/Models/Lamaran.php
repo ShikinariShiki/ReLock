@@ -6,25 +6,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class JobApplication extends Model
+class Lamaran extends Model
 {
     use HasFactory;
+    
+    protected $table = 'lamarans';
+    
     protected $fillable = [
-        'candidate_id',
-        'job_listing_id',
+        'kandidat_id',
+        'lowongan_id',
         'cv_path',
         'cv_type',
         'status',
         'notes',
     ];
 
-    public function candidate(): BelongsTo
+    public function kandidat(): BelongsTo
     {
-        return $this->belongsTo(Candidate::class);
+        return $this->belongsTo(Kandidat::class);
     }
 
-    public function jobListing(): BelongsTo
+    public function lowongan(): BelongsTo
     {
-        return $this->belongsTo(JobListing::class);
+        return $this->belongsTo(Lowongan::class);
     }
 }

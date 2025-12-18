@@ -8,7 +8,7 @@ use App\Http\Requests\Job\UpdateJobRequest;
 use App\Http\Resources\JobApplicationResource;
 use App\Http\Resources\JobListingCollection;
 use App\Http\Resources\JobListingResource;
-use App\Models\JobListing;
+use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
 class JobController extends Controller
@@ -18,7 +18,7 @@ class JobController extends Controller
      */
     public function index(Request $request)
     {
-        $query = JobListing::with('recruiter')->active();
+        $query = Lowongan::with('rekruter')->active();
 
         // Search
         if ($request->has('search') && $request->search) {
@@ -69,9 +69,9 @@ class JobController extends Controller
         }
 
         $perPage = min($request->get('per_page', 10), 50);
-        $jobs = $query->paginate($perPage);
+        $lowongans = $query->paginate($perPage);
 
-        return new JobListingCollection($jobs);
+        return new JobListingCollection($lowongans);
     }
 
     /**
@@ -79,10 +79,10 @@ class JobController extends Controller
      */
     public function show($id)
     {
-        $job = JobListing::with('recruiter')->findOrFail($id);
+        $lowongan = Lowongan::with('rekruter')->findOrFail($id);
 
         return response()->json([
-            'job' => new JobListingResource($job),
+            'job' => new LowonganResource($lowongan),
         ]);
     }
 
@@ -91,9 +91,9 @@ class JobController extends Controller
      */
     public function store(StoreJobRequest $request)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
 
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Only recruiters can create jobs',
                 'error' => 'forbidden',
@@ -101,14 +101,14 @@ class JobController extends Controller
         }
 
         $validated = $request->validated();
-        $validated['recruiter_id'] = $recruiter->id;
+        $validated['recruiter_id'] = $rekruter->id;
         $validated['status'] = 'active';
 
-        $job = JobListing::create($validated);
+        $lowongan = Lowongan::create($validated);
 
         return response()->json([
             'message' => 'Job created successfully',
-            'job' => new JobListingResource($job->load('recruiter')),
+            'job' => new LowonganResource($lowongan->load('rekruter')),
         ], 201);
     }
 
@@ -117,24 +117,24 @@ class JobController extends Controller
      */
     public function update(UpdateJobRequest $request, $id)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
 
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Only recruiters can update jobs',
                 'error' => 'forbidden',
             ], 403);
         }
 
-        $job = JobListing::where('id', $id)
-            ->where('recruiter_id', $recruiter->id)
+        $lowongan = Lowongan::where('id', $id)
+            ->where('recruiter_id', $rekruter->id)
             ->firstOrFail();
 
-        $job->update($request->validated());
+        $lowongan->update($request->validated());
 
         return response()->json([
             'message' => 'Job updated successfully',
-            'job' => new JobListingResource($job->fresh()->load('recruiter')),
+            'job' => new LowonganResource($lowongan->fresh()->load('rekruter')),
         ]);
     }
 
@@ -143,20 +143,20 @@ class JobController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
 
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Only recruiters can delete jobs',
                 'error' => 'forbidden',
             ], 403);
         }
 
-        $job = JobListing::where('id', $id)
-            ->where('recruiter_id', $recruiter->id)
+        $lowongan = Lowongan::where('id', $id)
+            ->where('recruiter_id', $rekruter->id)
             ->firstOrFail();
 
-        $job->delete();
+        $lowongan->delete();
 
         return response()->json([
             'message' => 'Job deleted successfully',
@@ -168,27 +168,27 @@ class JobController extends Controller
      */
     public function applicants(Request $request, $id)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
 
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Only recruiters can view applicants',
                 'error' => 'forbidden',
             ], 403);
         }
 
-        $job = JobListing::where('id', $id)
-            ->where('recruiter_id', $recruiter->id)
+        $lowongan = Lowongan::where('id', $id)
+            ->where('recruiter_id', $rekruter->id)
             ->firstOrFail();
 
-        $applicants = $job->applications()
+        $applicants = $lowongan->applications()
             ->with(['candidate.user'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
         return response()->json([
-            'job' => new JobListingResource($job),
-            'applicants' => JobApplicationResource::collection($applicants),
+            'job' => new LowonganResource($lowongan),
+            'applicants' => LamaranResource::collection($applicants),
             'meta' => [
                 'total' => $applicants->total(),
                 'per_page' => $applicants->perPage(),

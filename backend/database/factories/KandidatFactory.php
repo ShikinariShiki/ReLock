@@ -2,18 +2,18 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
+use App\Models\Akun;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Candidate>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Kandidat>
  */
-class CandidateFactory extends Factory
+class KandidatFactory extends Factory
 {
     public function definition(): array
     {
         return [
-            'user_id' => User::factory()->candidate(),
+            'akun_id' => Akun::factory()->kandidat(),
             'first_name' => fake()->firstName(),
             'last_name' => fake()->lastName(),
             'phone' => fake()->phoneNumber(),
@@ -35,12 +35,12 @@ class CandidateFactory extends Factory
     }
 
     /**
-     * Associate with existing user
+     * Associate with existing akun
      */
-    public function forUser(User $user): static
+    public function forAkun(Akun $akun): static
     {
         return $this->state(fn (array $attributes) => [
-            'user_id' => $user->id,
+            'akun_id' => $akun->id,
         ]);
     }
 

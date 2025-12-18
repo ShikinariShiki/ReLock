@@ -2,20 +2,20 @@
 
 namespace Database\Factories;
 
-use App\Models\Recruiter;
+use App\Models\Rekruter;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\JobListing>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Lowongan>
  */
-class JobListingFactory extends Factory
+class LowonganFactory extends Factory
 {
     public function definition(): array
     {
         $salaryMin = fake()->numberBetween(3000000, 10000000);
         
         return [
-            'recruiter_id' => Recruiter::factory(),
+            'rekruter_id' => Rekruter::factory(),
             'title' => fake()->jobTitle(),
             'company_name' => fake()->company(),
             'location' => fake()->city() . ', Indonesia',

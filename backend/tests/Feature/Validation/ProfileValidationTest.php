@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Validation;
 
-use App\Models\Candidate;
-use App\Models\Recruiter;
-use App\Models\User;
+use App\Models\Kandidat;
+use App\Models\Rekruter;
+use App\Models\Akun;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -27,10 +27,10 @@ class ProfileValidationTest extends TestCase
     /** @test */
     public function candidate_can_update_profile_with_valid_data(): void
     {
-        $user = User::factory()->candidate()->create();
-        $candidate = Candidate::factory()->forUser($user)->create();
+        $akun = Akun::factory()->candidate()->create();
+        $kandidat = Kandidat::factory()->forUser($akun)->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($akun)
             ->putJson('/api/v1/candidate/profile', [
                 'first_name' => 'Updated',
                 'last_name' => 'Name',
@@ -46,10 +46,10 @@ class ProfileValidationTest extends TestCase
     /** @test */
     public function candidate_profile_linkedin_must_be_valid_url(): void
     {
-        $user = User::factory()->candidate()->create();
-        $candidate = Candidate::factory()->forUser($user)->create();
+        $akun = Akun::factory()->candidate()->create();
+        $kandidat = Kandidat::factory()->forUser($akun)->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($akun)
             ->putJson('/api/v1/candidate/profile', [
                 'linkedin' => 'not-a-valid-url',
             ]);
@@ -61,10 +61,10 @@ class ProfileValidationTest extends TestCase
     /** @test */
     public function candidate_can_upload_cv(): void
     {
-        $user = User::factory()->candidate()->create();
-        $candidate = Candidate::factory()->forUser($user)->create();
+        $akun = Akun::factory()->candidate()->create();
+        $kandidat = Kandidat::factory()->forUser($akun)->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($akun)
             ->postJson('/api/v1/candidate/upload-cv', [
                 'cv' => UploadedFile::fake()->create('my-cv.pdf', 500),
             ]);
@@ -76,10 +76,10 @@ class ProfileValidationTest extends TestCase
     /** @test */
     public function candidate_cv_must_be_pdf(): void
     {
-        $user = User::factory()->candidate()->create();
-        $candidate = Candidate::factory()->forUser($user)->create();
+        $akun = Akun::factory()->candidate()->create();
+        $kandidat = Kandidat::factory()->forUser($akun)->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($akun)
             ->postJson('/api/v1/candidate/upload-cv', [
                 'cv' => UploadedFile::fake()->create('document.docx', 500),
             ]);
@@ -91,10 +91,10 @@ class ProfileValidationTest extends TestCase
     /** @test */
     public function candidate_cv_max_size_is_10mb(): void
     {
-        $user = User::factory()->candidate()->create();
-        $candidate = Candidate::factory()->forUser($user)->create();
+        $akun = Akun::factory()->candidate()->create();
+        $kandidat = Kandidat::factory()->forUser($akun)->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($akun)
             ->postJson('/api/v1/candidate/upload-cv', [
                 'cv' => UploadedFile::fake()->create('large-cv.pdf', 11000),
             ]);
@@ -106,10 +106,10 @@ class ProfileValidationTest extends TestCase
     /** @test */
     public function candidate_can_upload_photo(): void
     {
-        $user = User::factory()->candidate()->create();
-        $candidate = Candidate::factory()->forUser($user)->create();
+        $akun = Akun::factory()->candidate()->create();
+        $kandidat = Kandidat::factory()->forUser($akun)->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($akun)
             ->postJson('/api/v1/candidate/upload-photo', [
                 'photo' => UploadedFile::fake()->image('profile.jpg', 400, 400),
             ]);
@@ -121,10 +121,10 @@ class ProfileValidationTest extends TestCase
     /** @test */
     public function candidate_photo_must_be_image(): void
     {
-        $user = User::factory()->candidate()->create();
-        $candidate = Candidate::factory()->forUser($user)->create();
+        $akun = Akun::factory()->candidate()->create();
+        $kandidat = Kandidat::factory()->forUser($akun)->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($akun)
             ->postJson('/api/v1/candidate/upload-photo', [
                 'photo' => UploadedFile::fake()->create('document.pdf', 500),
             ]);
@@ -140,10 +140,10 @@ class ProfileValidationTest extends TestCase
     /** @test */
     public function recruiter_can_update_profile_with_valid_data(): void
     {
-        $user = User::factory()->recruiter()->create();
-        $recruiter = Recruiter::factory()->forUser($user)->create();
+        $akun = Akun::factory()->recruiter()->create();
+        $rekruter = Rekruter::factory()->forUser($akun)->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($akun)
             ->putJson('/api/v1/recruiter/profile', [
                 'company_name' => 'Updated Company Name',
                 'company_description' => 'We are a tech company.',
@@ -157,10 +157,10 @@ class ProfileValidationTest extends TestCase
     /** @test */
     public function recruiter_can_upload_logo(): void
     {
-        $user = User::factory()->recruiter()->create();
-        $recruiter = Recruiter::factory()->forUser($user)->create();
+        $akun = Akun::factory()->recruiter()->create();
+        $rekruter = Rekruter::factory()->forUser($akun)->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($akun)
             ->postJson('/api/v1/recruiter/upload-logo', [
                 'logo' => UploadedFile::fake()->image('logo.png', 400, 400),
             ]);
@@ -172,10 +172,10 @@ class ProfileValidationTest extends TestCase
     /** @test */
     public function recruiter_logo_must_be_image(): void
     {
-        $user = User::factory()->recruiter()->create();
-        $recruiter = Recruiter::factory()->forUser($user)->create();
+        $akun = Akun::factory()->recruiter()->create();
+        $rekruter = Rekruter::factory()->forUser($akun)->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($akun)
             ->postJson('/api/v1/recruiter/upload-logo', [
                 'logo' => UploadedFile::fake()->create('document.pdf', 500),
             ]);
@@ -205,10 +205,10 @@ class ProfileValidationTest extends TestCase
     /** @test */
     public function recruiter_cannot_access_candidate_profile(): void
     {
-        $user = User::factory()->recruiter()->create();
-        Recruiter::factory()->forUser($user)->create();
+        $akun = Akun::factory()->recruiter()->create();
+        Rekruter::factory()->forUser($akun)->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($akun)
             ->getJson('/api/v1/candidate/profile');
 
         $response->assertStatus(403);
@@ -217,10 +217,10 @@ class ProfileValidationTest extends TestCase
     /** @test */
     public function candidate_cannot_access_recruiter_profile(): void
     {
-        $user = User::factory()->candidate()->create();
-        Candidate::factory()->forUser($user)->create();
+        $akun = Akun::factory()->candidate()->create();
+        Kandidat::factory()->forUser($akun)->create();
 
-        $response = $this->actingAs($user)
+        $response = $this->actingAs($akun)
             ->getJson('/api/v1/recruiter/profile');
 
         $response->assertStatus(403);

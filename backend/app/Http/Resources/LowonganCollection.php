@@ -5,12 +5,12 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class JobListingCollection extends ResourceCollection
+class LowonganCollection extends ResourceCollection
 {
     public function toArray(Request $request): array
     {
         return [
-            'data' => JobListingResource::collection($this->collection),
+            'data' => LowonganResource::collection($this->collection),
             'meta' => [
                 'total' => $this->total(),
                 'per_page' => $this->perPage(),

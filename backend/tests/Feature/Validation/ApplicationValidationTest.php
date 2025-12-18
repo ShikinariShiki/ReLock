@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Validation;
 
-use App\Models\Candidate;
-use App\Models\JobApplication;
-use App\Models\JobListing;
-use App\Models\Recruiter;
-use App\Models\User;
+use App\Models\Kandidat;
+use App\Models\Lamaran;
+use App\Models\Lowongan;
+use App\Models\Rekruter;
+use App\Models\Akun;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -16,9 +16,9 @@ class ApplicationValidationTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected User $candidateUser;
-    protected Candidate $candidate;
-    protected JobListing $job;
+    protected Akun $kandidatUser;
+    protected Kandidat $kandidat;
+    protected Lowongan $lowongan;
 
     protected function setUp(): void
     {
@@ -27,13 +27,13 @@ class ApplicationValidationTest extends TestCase
         Storage::fake('public');
         
         // Create candidate for testing
-        $this->candidateUser = User::factory()->candidate()->create();
-        $this->candidate = Candidate::factory()->forUser($this->candidateUser)->withCv()->create();
+        $this->candidateUser = Akun::factory()->candidate()->create();
+        $this->candidate = Kandidat::factory()->forUser($this->candidateUser)->withCv()->create();
         
         // Create job for testing
-        $recruiterUser = User::factory()->recruiter()->create();
-        $recruiter = Recruiter::factory()->forUser($recruiterUser)->create();
-        $this->job = JobListing::factory()->create(['recruiter_id' => $recruiter->id]);
+        $rekruterUser = Akun::factory()->recruiter()->create();
+        $rekruter = Rekruter::factory()->forUser($rekruterUser)->create();
+        $this->job = Lowongan::factory()->create(['recruiter_id' => $rekruter->id]);
     }
 
     // ==========================================
@@ -164,10 +164,10 @@ class ApplicationValidationTest extends TestCase
     /** @test */
     public function recruiter_cannot_apply_to_job(): void
     {
-        $recruiterUser = User::factory()->recruiter()->create();
-        Recruiter::factory()->forUser($recruiterUser)->create();
+        $rekruterUser = Akun::factory()->recruiter()->create();
+        Rekruter::factory()->forUser($rekruterUser)->create();
 
-        $response = $this->actingAs($recruiterUser)
+        $response = $this->actingAs($rekruterUser)
             ->postJson("/api/v1/jobs/{$this->job->id}/apply", [
                 'cv_type' => 'existing',
             ]);

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\UseCase;
 
 use App\Http\Controllers\Controller;
-use App\Models\JobListing;
+use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
 /**
@@ -17,27 +17,27 @@ class HapusLowonganController extends Controller
      */
     public function __invoke(Request $request, $id)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
 
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Recruiter profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        $job = JobListing::where('id', $id)
-            ->where('recruiter_id', $recruiter->id)
+        $lowongan = Lowongan::where('id', $id)
+            ->where('recruiter_id', $rekruter->id)
             ->first();
 
-        if (!$job) {
+        if (!$lowongan) {
             return response()->json([
                 'message' => 'Job listing not found or unauthorized',
                 'error' => 'not_found',
             ], 404);
         }
 
-        $job->delete();
+        $lowongan->delete();
 
         return response()->json([
             'message' => 'Job deleted successfully',

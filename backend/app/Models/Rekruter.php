@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Recruiter extends Model
+class Rekruter extends Model
 {
     use HasFactory;
+    
+    protected $table = 'rekruters';
+    
     protected $fillable = [
-        'user_id',
+        'akun_id',
         'first_name',
         'last_name',
         'company_name',
@@ -27,14 +30,14 @@ class Recruiter extends Model
         'location',
     ];
 
-    public function user(): BelongsTo
+    public function akun(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Akun::class);
     }
 
-    public function jobListings(): HasMany
+    public function lowongans(): HasMany
     {
-        return $this->hasMany(JobListing::class);
+        return $this->hasMany(Lowongan::class, 'rekruter_id');
     }
 
     public function getFullNameAttribute(): string

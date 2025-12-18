@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\UseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Job\UpdateJobRequest;
 use App\Http\Resources\JobListingResource;
-use App\Models\JobListing;
+use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
 /**
@@ -19,31 +19,31 @@ class EditLowonganController extends Controller
      */
     public function __invoke(UpdateJobRequest $request, $id)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
 
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Recruiter profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        $job = JobListing::where('id', $id)
-            ->where('recruiter_id', $recruiter->id)
+        $lowongan = Lowongan::where('id', $id)
+            ->where('recruiter_id', $rekruter->id)
             ->first();
 
-        if (!$job) {
+        if (!$lowongan) {
             return response()->json([
                 'message' => 'Job listing not found or unauthorized',
                 'error' => 'not_found',
             ], 404);
         }
 
-        $job->update($request->validated());
+        $lowongan->update($request->validated());
 
         return response()->json([
             'message' => 'Job listing updated successfully',
-            'job' => new JobListingResource($job->fresh()->load('recruiter')),
+            'job' => new LowonganResource($lowongan->fresh()->load('rekruter')),
         ]);
     }
 }

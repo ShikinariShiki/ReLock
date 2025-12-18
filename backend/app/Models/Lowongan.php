@@ -7,11 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class JobListing extends Model
+class Lowongan extends Model
 {
     use HasFactory;
+    
+    protected $table = 'lowongans';
+    
     protected $fillable = [
-        'recruiter_id',
+        'rekruter_id',
         'title',
         'company_name',
         'location',
@@ -39,14 +42,14 @@ class JobListing extends Model
         'salary_max' => 'decimal:2',
     ];
 
-    public function recruiter(): BelongsTo
+    public function rekruter(): BelongsTo
     {
-        return $this->belongsTo(Recruiter::class);
+        return $this->belongsTo(Rekruter::class);
     }
 
-    public function applications(): HasMany
+    public function lamarans(): HasMany
     {
-        return $this->hasMany(JobApplication::class);
+        return $this->hasMany(Lamaran::class, 'lowongan_id');
     }
 
     public function scopeActive($query)

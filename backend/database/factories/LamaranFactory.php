@@ -2,20 +2,20 @@
 
 namespace Database\Factories;
 
-use App\Models\Candidate;
-use App\Models\JobListing;
+use App\Models\Kandidat;
+use App\Models\Lowongan;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\JobApplication>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Lamaran>
  */
-class JobApplicationFactory extends Factory
+class LamaranFactory extends Factory
 {
     public function definition(): array
     {
         return [
-            'candidate_id' => Candidate::factory(),
-            'job_listing_id' => JobListing::factory(),
+            'kandidat_id' => Kandidat::factory(),
+            'lowongan_id' => Lowongan::factory(),
             'cv_path' => 'applications/sample-cv.pdf',
             'cv_type' => 'existing',
             'status' => 'pending',

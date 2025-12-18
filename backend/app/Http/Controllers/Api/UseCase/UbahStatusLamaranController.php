@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\UseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Application\UpdateStatusRequest;
 use App\Http\Resources\JobApplicationResource;
-use App\Models\JobApplication;
+use App\Models\Lamaran;
 use Illuminate\Http\Request;
 
 /**
@@ -19,27 +19,27 @@ class UbahStatusLamaranController extends Controller
      */
     public function __invoke(UpdateStatusRequest $request, $id)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
 
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Only recruiters can update application status',
                 'error' => 'forbidden',
             ], 403);
         }
 
-        $application = JobApplication::with('jobListing')
-            ->whereHas('jobListing', function ($q) use ($recruiter) {
-                $q->where('recruiter_id', $recruiter->id);
+        $lamaran = Lamaran::with('jobListing')
+            ->whereHas('jobListing', function ($q) use ($rekruter) {
+                $q->where('recruiter_id', $rekruter->id);
             })
             ->findOrFail($id);
 
-        $application->update($request->validated());
+        $lamaran->update($request->validated());
 
         return response()->json([
             'message' => 'Application status updated successfully',
-            'application' => new JobApplicationResource(
-                $application->fresh()->load(['candidate.user', 'jobListing'])
+            'application' => new LamaranResource(
+                $lamaran->fresh()->load(['candidate.user', 'jobListing'])
             ),
         ]);
     }

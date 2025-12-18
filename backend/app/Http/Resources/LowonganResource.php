@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class JobListingResource extends JsonResource
+class LowonganResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
@@ -35,7 +35,7 @@ class JobListingResource extends JsonResource
             'benefits' => $this->benefits,
             'status' => $this->status,
             'applications_count' => $this->whenCounted('applications'),
-            'recruiter' => new RecruiterResource($this->whenLoaded('recruiter')),
+            'rekruter' => new RekruterResource($this->whenLoaded('rekruter')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

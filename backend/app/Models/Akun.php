@@ -7,10 +7,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class Akun extends Authenticatable
 {
     use HasFactory, Notifiable, HasApiTokens;
 
+    protected $table = 'akuns';
+    
     protected $fillable = [
         'name',
         'email',
@@ -32,23 +34,23 @@ class User extends Authenticatable
         ];
     }
 
-    public function candidate()
+    public function kandidat()
     {
-        return $this->hasOne(Candidate::class);
+        return $this->hasOne(Kandidat::class, 'akun_id');
     }
 
-    public function recruiter()
+    public function rekruter()
     {
-        return $this->hasOne(Recruiter::class);
+        return $this->hasOne(Rekruter::class, 'akun_id');
     }
 
-    public function isCandidate(): bool
+    public function isKandidat(): bool
     {
-        return $this->role === 'candidate';
+        return $this->role === 'kandidat';
     }
 
-    public function isRecruiter(): bool
+    public function isRekruter(): bool
     {
-        return $this->role === 'recruiter';
+        return $this->role === 'rekruter';
     }
 }

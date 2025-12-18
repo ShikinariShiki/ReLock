@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Storage;
 
-class RecruiterResource extends JsonResource
+class RekruterResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
@@ -27,7 +27,7 @@ class RecruiterResource extends JsonResource
             'company_logo' => $this->company_logo,
             'logo_url' => $this->company_logo ? Storage::disk('public')->url($this->company_logo) : null,
             'location' => $this->location,
-            'user' => new UserResource($this->whenLoaded('user')),
+            'user' => new AkunResource($this->whenLoaded('user')),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

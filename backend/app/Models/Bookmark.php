@@ -8,17 +8,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Bookmark extends Model
 {
     protected $fillable = [
-        'candidate_id',
-        'job_listing_id',
+        'kandidat_id',
+        'lowongan_id',
     ];
 
-    public function candidate(): BelongsTo
+    public function kandidat(): BelongsTo
     {
-        return $this->belongsTo(Candidate::class);
+        return $this->belongsTo(Kandidat::class);
     }
 
-    public function jobListing(): BelongsTo
+    public function lowongan(): BelongsTo
     {
-        return $this->belongsTo(JobListing::class);
+        return $this->belongsTo(Lowongan::class);
     }
 }

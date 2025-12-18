@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api\UseCase;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterCandidateRequest;
 use App\Http\Requests\Auth\RegisterRecruiterRequest;
-use App\Models\User;
-use App\Models\Candidate;
-use App\Models\Recruiter;
+use App\Models\Akun;
+use App\Models\Kandidat;
+use App\Models\Rekruter;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -21,25 +21,25 @@ class RegisterUserController extends Controller
      */
     public function registerCandidate(RegisterCandidateRequest $request)
     {
-        $user = User::create([
+        $akun = Akun::create([
             'name' => $request->first_name . ' ' . $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'candidate',
+            'role' => 'kandidat',
         ]);
 
-        Candidate::create([
-            'user_id' => $user->id,
+        Kandidat::create([
+            'user_id' => $akun->id,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
         ]);
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $token = $akun->createToken('auth-token')->plainTextToken;
 
         return response()->json([
             'message' => 'Registration successful',
             'data' => [
-                'user' => $user->load('candidate'),
+                'user' => $akun->load('kandidat'),
                 'token' => $token,
             ],
         ], 201);
@@ -50,26 +50,26 @@ class RegisterUserController extends Controller
      */
     public function registerRecruiter(RegisterRecruiterRequest $request)
     {
-        $user = User::create([
+        $akun = Akun::create([
             'name' => $request->first_name . ' ' . $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'recruiter',
+            'role' => 'rekruter',
         ]);
 
-        Recruiter::create([
-            'user_id' => $user->id,
+        Rekruter::create([
+            'user_id' => $akun->id,
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'company_name' => $request->company_name,
         ]);
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $token = $akun->createToken('auth-token')->plainTextToken;
 
         return response()->json([
             'message' => 'Registration successful',
             'data' => [
-                'user' => $user->load('recruiter'),
+                'user' => $akun->load('rekruter'),
                 'token' => $token,
             ],
         ], 201);

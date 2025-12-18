@@ -17,16 +17,16 @@ class RecruiterController extends Controller
      */
     public function show(Request $request)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
         
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Recruiter profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        return new RecruiterResource($recruiter->load('user'));
+        return new RekruterResource($rekruter->load('user'));
     }
 
     /**
@@ -34,28 +34,28 @@ class RecruiterController extends Controller
      */
     public function update(UpdateProfileRequest $request)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
 
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Recruiter profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        $recruiter->update($request->validated());
+        $rekruter->update($request->validated());
 
         // Update user name if first/last name changed
         if ($request->has('first_name') || $request->has('last_name')) {
             $request->user()->update([
-                'name' => ($request->first_name ?? $recruiter->first_name) . ' ' . 
-                         ($request->last_name ?? $recruiter->last_name),
+                'name' => ($request->first_name ?? $rekruter->first_name) . ' ' . 
+                         ($request->last_name ?? $rekruter->last_name),
             ]);
         }
 
         return response()->json([
             'message' => 'Profile updated successfully',
-            'recruiter' => new RecruiterResource($recruiter->fresh()->load('user')),
+            'rekruter' => new RekruterResource($rekruter->fresh()->load('user')),
         ]);
     }
 
@@ -64,9 +64,9 @@ class RecruiterController extends Controller
      */
     public function uploadLogo(UploadLogoRequest $request)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
 
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Recruiter profile not found',
                 'error' => 'not_found',
@@ -74,12 +74,12 @@ class RecruiterController extends Controller
         }
 
         // Delete old logo if exists
-        if ($recruiter->company_logo) {
-            Storage::disk('public')->delete($recruiter->company_logo);
+        if ($rekruter->company_logo) {
+            Storage::disk('public')->delete($rekruter->company_logo);
         }
 
         $path = $request->file('logo')->store('logos', 'public');
-        $recruiter->update(['company_logo' => $path]);
+        $rekruter->update(['company_logo' => $path]);
 
         return response()->json([
             'message' => 'Logo uploaded successfully',
@@ -93,27 +93,27 @@ class RecruiterController extends Controller
      */
     public function dashboard(Request $request)
     {
-        $recruiter = $request->user()->recruiter;
+        $rekruter = $request->user()->recruiter;
 
-        if (!$recruiter) {
+        if (!$rekruter) {
             return response()->json([
                 'message' => 'Recruiter profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        $jobs = $recruiter->jobListings()
+        $lowongans = $rekruter->jobListings()
             ->withCount('applications')
             ->orderBy('created_at', 'desc')
             ->get();
 
         $stats = [
-            'total_jobs' => $jobs->count(),
-            'active_jobs' => $jobs->where('status', 'active')->count(),
-            'closed_jobs' => $jobs->where('status', 'closed')->count(),
-            'draft_jobs' => $jobs->where('status', 'draft')->count(),
-            'total_applications' => $jobs->sum('applications_count'),
-            'recent_applications' => $recruiter->jobListings()
+            'total_jobs' => $lowongans->count(),
+            'active_jobs' => $lowongans->where('status', 'active')->count(),
+            'closed_jobs' => $lowongans->where('status', 'closed')->count(),
+            'draft_jobs' => $lowongans->where('status', 'draft')->count(),
+            'total_applications' => $lowongans->sum('applications_count'),
+            'recent_applications' => $rekruter->jobListings()
                 ->with(['applications' => function($q) {
                     $q->where('created_at', '>=', now()->subDays(7));
                 }])
@@ -123,7 +123,7 @@ class RecruiterController extends Controller
         ];
 
         return response()->json([
-            'jobs' => JobListingResource::collection($jobs),
+            'jobs' => LowonganResource::collection($lowongans),
             'stats' => $stats,
         ]);
     }

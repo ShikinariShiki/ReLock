@@ -21,16 +21,16 @@ class UpdateCandidateProfileController extends Controller
      */
     public function show(Request $request)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        return new CandidateResource($candidate->load('user'));
+        return new KandidatResource($kandidat->load('user'));
     }
 
     /**
@@ -38,28 +38,28 @@ class UpdateCandidateProfileController extends Controller
      */
     public function update(UpdateProfileRequest $request)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        $candidate->update($request->validated());
+        $kandidat->update($request->validated());
 
         // Update user name if first/last name changed
         if ($request->has('first_name') || $request->has('last_name')) {
             $request->user()->update([
-                'name' => ($request->first_name ?? $candidate->first_name) . ' ' . 
-                         ($request->last_name ?? $candidate->last_name),
+                'name' => ($request->first_name ?? $kandidat->first_name) . ' ' . 
+                         ($request->last_name ?? $kandidat->last_name),
             ]);
         }
 
         return response()->json([
             'message' => 'Profile updated successfully',
-            'candidate' => new CandidateResource($candidate->fresh()->load('user')),
+            'kandidat' => new KandidatResource($kandidat->fresh()->load('user')),
         ]);
     }
 
@@ -68,9 +68,9 @@ class UpdateCandidateProfileController extends Controller
      */
     public function uploadCv(UploadCvRequest $request)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
@@ -78,12 +78,12 @@ class UpdateCandidateProfileController extends Controller
         }
 
         // Delete old CV if exists
-        if ($candidate->cv_path) {
-            Storage::disk('public')->delete($candidate->cv_path);
+        if ($kandidat->cv_path) {
+            Storage::disk('public')->delete($kandidat->cv_path);
         }
 
         $path = $request->file('cv')->store('cvs', 'public');
-        $candidate->update([
+        $kandidat->update([
             'cv_path' => $path,
             'cv_filename' => $request->file('cv')->getClientOriginalName(),
         ]);
@@ -101,9 +101,9 @@ class UpdateCandidateProfileController extends Controller
      */
     public function uploadPhoto(UploadPhotoRequest $request)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
@@ -111,12 +111,12 @@ class UpdateCandidateProfileController extends Controller
         }
 
         // Delete old photo if exists
-        if ($candidate->profile_photo) {
-            Storage::disk('public')->delete($candidate->profile_photo);
+        if ($kandidat->profile_photo) {
+            Storage::disk('public')->delete($kandidat->profile_photo);
         }
 
         $path = $request->file('photo')->store('photos', 'public');
-        $candidate->update(['profile_photo' => $path]);
+        $kandidat->update(['profile_photo' => $path]);
 
         return response()->json([
             'message' => 'Photo uploaded successfully',

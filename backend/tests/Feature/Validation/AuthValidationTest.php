@@ -125,7 +125,7 @@ class AuthValidationTest extends TestCase
     public function register_candidate_requires_unique_email(): void
     {
         // Create existing user
-        \App\Models\User::factory()->create(['email' => 'existing@example.com']);
+        \App\Models\Akun::factory()->create(['email' => 'existing@example.com']);
 
         $response = $this->postJson('/api/v1/register/candidate', [
             'first_name' => 'John',

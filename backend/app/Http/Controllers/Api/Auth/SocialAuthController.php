@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\Candidate;
-use App\Models\User;
+use App\Models\Kandidat;
+use App\Models\Akun;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -49,12 +49,12 @@ class SocialAuthController extends Controller
                 ->user();
 
             // Find or create user
-            $user = User::where('email', $googleUser->getEmail())->first();
+            $akun = Akun::where('email', $googleUser->getEmail())->first();
 
-            if ($user) {
+            if ($akun) {
                 // User exists, just login
-                if (!$user->google_id) {
-                    $user->update(['google_id' => $googleUser->getId()]);
+                if (!$akun->google_id) {
+                    $akun->update(['google_id' => $googleUser->getId()]);
                 }
             } else {
                 // Create new user (default as candidate)
@@ -62,33 +62,33 @@ class SocialAuthController extends Controller
                 $firstName = $nameParts[0] ?? '';
                 $lastName = $nameParts[1] ?? '';
 
-                $user = User::create([
+                $akun = Akun::create([
                     'name' => $googleUser->getName(),
                     'email' => $googleUser->getEmail(),
                     'google_id' => $googleUser->getId(),
                     'password' => Hash::make(Str::random(24)), // Random password for social auth
-                    'role' => 'candidate',
+                    'role' => 'kandidat',
                     'email_verified_at' => now(),
                 ]);
 
                 // Create candidate profile
-                Candidate::create([
-                    'user_id' => $user->id,
+                Kandidat::create([
+                    'user_id' => $akun->id,
                     'first_name' => $firstName,
                     'last_name' => $lastName,
                 ]);
             }
 
             // Generate token
-            $token = $user->createToken('auth_token')->plainTextToken;
+            $token = $akun->createToken('auth_token')->plainTextToken;
 
             return response()->json([
                 'message' => 'Login successful',
                 'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role,
+                    'id' => $akun->id,
+                    'name' => $akun->name,
+                    'email' => $akun->email,
+                    'role' => $akun->role,
                 ],
                 'token' => $token,
             ]);
@@ -130,17 +130,17 @@ class SocialAuthController extends Controller
             $lastName = $payload['family_name'] ?? '';
 
             // Find or create user
-            $user = User::where('email', $email)->first();
-            $role = $request->input('role', 'candidate');
+            $akun = Akun::where('email', $email)->first();
+            $role = $request->input('role', 'kandidat');
 
-            if ($user) {
+            if ($akun) {
                 // User exists, just login
-                if (!$user->google_id) {
-                    $user->update(['google_id' => $googleId]);
+                if (!$akun->google_id) {
+                    $akun->update(['google_id' => $googleId]);
                 }
             } else {
                 // Create new user
-                $user = User::create([
+                $akun = Akun::create([
                     'name' => $name,
                     'email' => $email,
                     'google_id' => $googleId,
@@ -150,9 +150,9 @@ class SocialAuthController extends Controller
                 ]);
 
                 // Create profile based on role
-                if ($role === 'candidate') {
-                    Candidate::create([
-                        'user_id' => $user->id,
+                if ($role === 'kandidat') {
+                    Kandidat::create([
+                        'user_id' => $akun->id,
                         'first_name' => $firstName,
                         'last_name' => $lastName,
                     ]);
@@ -160,15 +160,15 @@ class SocialAuthController extends Controller
             }
 
             // Generate token
-            $token = $user->createToken('auth_token')->plainTextToken;
+            $token = $akun->createToken('auth_token')->plainTextToken;
 
             return response()->json([
                 'message' => 'Login successful',
                 'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role,
+                    'id' => $akun->id,
+                    'name' => $akun->name,
+                    'email' => $akun->email,
+                    'role' => $akun->role,
                 ],
                 'token' => $token,
             ]);

@@ -4,20 +4,20 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
-use App\Models\User;
-use App\Models\Recruiter;
+use App\Models\Akun;
+use App\Models\Rekruter;
 
-class RecruiterSeeder extends Seeder
+class RekruterSeeder extends Seeder
 {
     public function run(): void
     {
-        $recruiters = [
+        $rekruters = [
             [
                 'user' => [
                     'name' => 'Tech Corp HR',
                     'email' => 'hr@techcorp.com',
                     'password' => Hash::make('password123'),
-                    'role' => 'recruiter',
+                    'role' => 'rekruter',
                 ],
                 'profile' => [
                     'first_name' => 'Amanda',
@@ -35,7 +35,7 @@ class RecruiterSeeder extends Seeder
                     'name' => 'Startup Hub Talent',
                     'email' => 'talent@startuphub.io',
                     'password' => Hash::make('password123'),
-                    'role' => 'recruiter',
+                    'role' => 'rekruter',
                 ],
                 'profile' => [
                     'first_name' => 'David',
@@ -53,7 +53,7 @@ class RecruiterSeeder extends Seeder
                     'name' => 'Global Finance Recruitment',
                     'email' => 'careers@globalfinance.co.id',
                     'password' => Hash::make('password123'),
-                    'role' => 'recruiter',
+                    'role' => 'rekruter',
                 ],
                 'profile' => [
                     'first_name' => 'Lisa',
@@ -68,10 +68,10 @@ class RecruiterSeeder extends Seeder
             ],
         ];
 
-        foreach ($recruiters as $data) {
-            $user = User::create($data['user']);
-            $data['profile']['user_id'] = $user->id;
-            Recruiter::create($data['profile']);
+        foreach ($rekruters as $data) {
+            $akun = Akun::create($data['user']);
+            $data['profile']['user_id'] = $akun->id;
+            Rekruter::create($data['profile']);
         }
     }
 }

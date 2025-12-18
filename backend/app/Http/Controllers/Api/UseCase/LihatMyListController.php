@@ -18,26 +18,26 @@ class LihatMyListController extends Controller
      */
     public function bookmarks(Request $request)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        $bookmarks = $candidate->bookmarks()
+        $bookmarks = $kandidat->bookmarks()
             ->with('jobListing.recruiter')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $jobs = $bookmarks->map(function ($bookmark) {
-            return new JobListingResource($bookmark->jobListing);
+        $lowongans = $bookmarks->map(function ($bookmark) {
+            return new LowonganResource($bookmark->jobListing);
         });
 
         return response()->json([
-            'bookmarks' => $jobs,
+            'bookmarks' => $lowongans,
             'total' => $bookmarks->count(),
         ]);
     }
@@ -47,23 +47,23 @@ class LihatMyListController extends Controller
      */
     public function applications(Request $request)
     {
-        $candidate = $request->user()->candidate;
+        $kandidat = $request->user()->candidate;
 
-        if (!$candidate) {
+        if (!$kandidat) {
             return response()->json([
                 'message' => 'Candidate profile not found',
                 'error' => 'not_found',
             ], 404);
         }
 
-        $applications = $candidate->applications()
+        $lamarans = $kandidat->applications()
             ->with(['jobListing.recruiter'])
             ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json([
-            'applications' => JobApplicationResource::collection($applications),
-            'total' => $applications->count(),
+            'applications' => LamaranResource::collection($lamarans),
+            'total' => $lamarans->count(),
         ]);
     }
 }
