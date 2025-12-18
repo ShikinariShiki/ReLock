@@ -5,12 +5,12 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Recruiter\UpdateProfileRequest;
 use App\Http\Requests\Recruiter\UploadLogoRequest;
-use App\Http\Resources\JobListingResource;
-use App\Http\Resources\RecruiterResource;
+use App\Http\Resources\LowonganResource;
+use App\Http\Resources\RekruterResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class RecruiterController extends Controller
+class KontrollerRekruter extends Controller
 {
     /**
      * Get current recruiter's profile

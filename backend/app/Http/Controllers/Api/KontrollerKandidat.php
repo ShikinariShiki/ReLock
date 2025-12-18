@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Candidate\UpdateProfileRequest;
 use App\Http\Requests\Candidate\UploadCvRequest;
-use App\Http\Resources\CandidateResource;
-use App\Http\Resources\JobApplicationResource;
+use App\Http\Resources\KandidatResource;
+use App\Http\Resources\LamaranResource;
 use App\Models\Kandidat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class CandidateController extends Controller
+class KontrollerKandidat extends Controller
 {
     /**
      * List all candidates (admin use)

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\UseCase;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\JobListingResource;
+use App\Http\Resources\LowonganResource;
 use App\Models\Lowongan;
 use Illuminate\Http\Request;
 

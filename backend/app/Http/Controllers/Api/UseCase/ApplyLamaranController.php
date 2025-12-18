@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\UseCase;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Application\ApplyJobRequest;
-use App\Http\Resources\JobApplicationResource;
+use App\Http\Resources\LamaranResource;
 use App\Models\Lamaran;
 use App\Models\Lowongan;
 use Illuminate\Http\Request;

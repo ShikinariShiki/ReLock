@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Application\ApplyJobRequest;
 use App\Http\Requests\Application\UpdateStatusRequest;
-use App\Http\Resources\JobApplicationResource;
+use App\Http\Resources\LamaranResource;
 use App\Models\Lamaran;
 use App\Models\Lowongan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class JobApplicationController extends Controller
+class KontrollerLamaran extends Controller
 {
     /**
      * Apply for a job (candidate only)

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\UseCase;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Job\StoreJobRequest;
-use App\Http\Resources\JobListingResource;
+use App\Http\Resources\LowonganResource;
 use Illuminate\Http\Request;
 
 /**

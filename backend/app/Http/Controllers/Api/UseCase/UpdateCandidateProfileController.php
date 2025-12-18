@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Candidate\UpdateProfileRequest;
 use App\Http\Requests\Candidate\UploadCvRequest;
 use App\Http\Requests\Candidate\UploadPhotoRequest;
-use App\Http\Resources\CandidateResource;
+use App\Http\Resources\KandidatResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 

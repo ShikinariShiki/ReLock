@@ -76,9 +76,9 @@ Route::prefix('v1')->group(function () {
     // SOCIAL AUTHENTICATION (Google OAuth)
     // ==========================================
     Route::prefix('auth')->group(function () {
-        Route::get('/google', [SocialAuthController::class, 'redirectToGoogle']);
-        Route::get('/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
-        Route::post('/google/token', [SocialAuthController::class, 'handleGoogleToken']);
+        Route::get('/google', [SocialKontrollerAuth::class, 'redirectToGoogle']);
+        Route::get('/google/callback', [SocialKontrollerAuth::class, 'handleGoogleCallback']);
+        Route::post('/google/token', [SocialKontrollerAuth::class, 'handleGoogleToken']);
     });
 
     // ==========================================

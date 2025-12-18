@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\JobListingResource;
+use App\Http\Resources\LowonganResource;
 use App\Models\Bookmark;
 use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
-class BookmarkController extends Controller
+class KontrollerBookmark extends Controller
 {
     /**
      * Get all bookmarked jobs

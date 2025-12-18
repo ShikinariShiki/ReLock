@@ -7,8 +7,8 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterCandidateRequest;
 use App\Http\Requests\Auth\RegisterRecruiterRequest;
 use App\Http\Resources\AuthResource;
-use App\Http\Resources\CandidateResource;
-use App\Http\Resources\RecruiterResource;
+use App\Http\Resources\KandidatResource;
+use App\Http\Resources\RekruterResource;
 use App\Models\Akun;
 use App\Models\Kandidat;
 use App\Models\Rekruter;
@@ -16,7 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 
-class AuthController extends Controller
+class KontrollerAuth extends Controller
 {
     /**
      * Register a new candidate

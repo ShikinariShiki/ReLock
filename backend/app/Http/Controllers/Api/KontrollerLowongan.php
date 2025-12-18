@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Job\StoreJobRequest;
 use App\Http\Requests\Job\UpdateJobRequest;
-use App\Http\Resources\JobApplicationResource;
-use App\Http\Resources\JobListingCollection;
-use App\Http\Resources\JobListingResource;
+use App\Http\Resources\LamaranResource;
+use App\Http\Resources\LowonganCollection;
+use App\Http\Resources\LowonganResource;
 use App\Models\Lowongan;
 use Illuminate\Http\Request;
 
-class JobController extends Controller
+class KontrollerLowongan extends Controller
 {
     /**
      * List all active jobs (public)
@@ -71,7 +71,7 @@ class JobController extends Controller
         $perPage = min($request->get('per_page', 10), 50);
         $lowongans = $query->paginate($perPage);
 
-        return new JobListingCollection($lowongans);
+        return new LowonganCollection($lowongans);
     }
 
     /**
