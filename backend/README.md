@@ -1,344 +1,115 @@
-﻿# ReLock Backend API (Laravel)
+# ReLock API
 
-A RESTful API for the ReLock job portal platform, built with Laravel 12 and Sanctum authentication.
+The ReLock backend provides a versioned REST API for candidate accounts, recruiter accounts, job listings, saved vacancies, and applications. It is built with Laravel 12 and uses Sanctum for authenticated requests.
 
-## Requirements
+For the product overview and the React frontend, see the [repository README](../README.md).
 
-- PHP 8.2+
-- Composer 2.x
-- SQLite (default) or MySQL/PostgreSQL
-- Node.js 18+ (for development assets)
+## Local setup
 
-## Quick Start
+Requirements: PHP 8.2+, Composer, and an SQL database driver. The included example configuration uses SQLite.
 
 ```bash
-# Navigate to backend directory
 cd backend
-
-# Install PHP dependencies
 composer install
-
-# Copy environment file
 cp .env.example .env
-
-# Generate application key
 php artisan key:generate
+```
 
-# Create SQLite database (for development)
-touch database/database.sqlite
+Create `database/database.sqlite` if the SQLite database file is not present, then run:
 
-# Run migrations
+```bash
 php artisan migrate
-
-# Seed with sample data (optional)
 php artisan db:seed
-
-# Create storage symlink
-php artisan storage:link
-
-# Start development server
 php artisan serve
 ```
 
-The API will be available at `http://localhost:8000`
+The development API base URL is `http://127.0.0.1:8000/api/v1`.
 
-## Test Accounts (after seeding)
+To view registered routes, use `php artisan route:list --path=api`.
 
-### Candidates
-| Email | Password |
-|-------|----------|
-| john@example.com | password123 |
-| sarah@example.com | password123 |
-| michael@example.com | password123 |
+## API routes
 
-### Recruiters
-| Email | Password |
-|-------|----------|
-| hr@techcorp.com | password123 |
-| talent@startuphub.io | password123 |
-| careers@globalfinance.co.id | password123 |
+All paths in the following tables are relative to `/api/v1`.
 
-## API Documentation
+### Public and account routes
 
-### Base URL
-```
-http://localhost:8000/api/v1
-```
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/health` | API health response |
+| GET | `/health/db` | Database connectivity check |
+| POST | `/register/candidate` | Create a candidate account |
+| POST | `/register/recruiter` | Create a recruiter account |
+| POST | `/login` | Sign in |
+| GET | `/jobs` | Search job listings |
+| GET | `/jobs/{id}` | Retrieve a job listing |
+| GET | `/auth/google` | Begin Google sign-in |
+| GET | `/auth/google/callback` | Google callback |
+| POST | `/auth/google/token` | Handle a Google token |
 
-### Authentication
+### Authenticated account routes
 
-All protected endpoints require a Bearer token:
-```
-Authorization: Bearer {token}
-```
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/me` | Current account |
+| POST | `/logout` | End the session |
 
-### Health Check
+Protected routes use the `auth:sanctum` middleware and are accessed using an authorized bearer token.
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/v1/health` | Basic health check |
-| GET | `/v1/health/db` | Database connection check |
+### Candidate routes
 
-### Authentication Endpoints
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/kandidat/profile` | View candidate profile |
+| PUT | `/kandidat/profile` | Update candidate profile |
+| POST | `/kandidat/upload-cv` | Upload CV |
+| POST | `/kandidat/upload-photo` | Upload profile photo |
+| GET | `/kandidat/bookmarks` | List bookmarked jobs |
+| GET | `/kandidat/applications` | List submitted applications |
+| POST | `/kandidat/bookmarks/{jobId}` | Bookmark a job |
+| GET | `/kandidat/bookmarks/{jobId}/check` | Check bookmark status |
+| DELETE | `/kandidat/bookmarks/{jobId}` | Remove bookmark |
+| POST | `/jobs/{jobId}/apply` | Submit an application |
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/v1/register/candidate` | Register as candidate | No |
-| POST | `/v1/register/recruiter` | Register as recruiter | No |
-| POST | `/v1/login` | Login (both roles) | No |
-| POST | `/v1/logout` | Logout | Yes |
-| GET | `/v1/me` | Get current user info | Yes |
+### Recruiter routes
 
-### Candidate Endpoints
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/rekruter/profile` | View company profile |
+| PUT | `/rekruter/profile` | Update company profile |
+| POST | `/rekruter/upload-logo` | Upload a company logo |
+| GET | `/rekruter/dashboard` | Dashboard data |
+| POST | `/jobs` | Create a vacancy |
+| PUT | `/jobs/{id}` | Edit a vacancy |
+| DELETE | `/jobs/{id}` | Remove a vacancy |
+| GET | `/jobs/{id}/applicants` | View applicants |
+| PUT | `/applications/{id}/status` | Update application status |
 
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/v1/candidate/profile` | Get profile | Yes (Candidate) |
-| PUT | `/v1/candidate/profile` | Update profile | Yes (Candidate) |
-| POST | `/v1/candidate/upload-cv` | Upload CV (PDF) | Yes (Candidate) |
-| GET | `/v1/candidate/applications` | My job applications | Yes (Candidate) |
+Role-specific routes use the `kandidat` or `rekruter` middleware in addition to authentication.
 
-### Recruiter Endpoints
-
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/v1/recruiter/profile` | Get profile | Yes (Recruiter) |
-| PUT | `/v1/recruiter/profile` | Update profile | Yes (Recruiter) |
-| POST | `/v1/recruiter/upload-logo` | Upload company logo | Yes (Recruiter) |
-| GET | `/v1/recruiter/dashboard` | Dashboard with stats | Yes (Recruiter) |
-
-### Job Endpoints
-
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/v1/jobs` | List all active jobs | No |
-| GET | `/v1/jobs/{id}` | Get job detail | No |
-| POST | `/v1/jobs` | Create job | Yes (Recruiter) |
-| PUT | `/v1/jobs/{id}` | Update job | Yes (Recruiter) |
-| DELETE | `/v1/jobs/{id}` | Delete job | Yes (Recruiter) |
-| GET | `/v1/jobs/{id}/applicants` | View applicants | Yes (Recruiter) |
-
-#### Job Listing Query Parameters
-
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| search | string | Search in title, company, location, description |
-| type | string | Filter by job type (Full Time, Part Time, etc.) |
-| mode | string | Filter by work mode (On-site, Remote, Hybrid) |
-| level | string | Filter by experience level |
-| location | string | Filter by location |
-| salary_min | number | Minimum salary filter |
-| salary_max | number | Maximum salary filter |
-| sort_by | string | Sort field (created_at, deadline, title, salary_min) |
-| sort_order | string | Sort direction (asc, desc) |
-| per_page | number | Items per page (max 50) |
-
-### Application Endpoints
-
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/v1/jobs/{id}/apply` | Apply for job | Yes (Candidate) |
-| GET | `/v1/applications/{id}` | View application detail | Yes |
-| PUT | `/v1/applications/{id}/status` | Update status | Yes (Recruiter) |
-| DELETE | `/v1/applications/{id}` | Withdraw application | Yes (Candidate) |
-
-## Request Examples
-
-### Register Candidate
-
-```json
-POST /api/v1/register/candidate
-Content-Type: application/json
-
-{
-    "first_name": "John",
-    "last_name": "Doe",
-    "email": "john@example.com",
-    "password": "password123",
-    "password_confirmation": "password123"
-}
-```
-
-### Register Recruiter
-
-```json
-POST /api/v1/register/recruiter
-Content-Type: application/json
-
-{
-    "first_name": "Jane",
-    "last_name": "Smith",
-    "email": "jane@company.com",
-    "password": "password123",
-    "password_confirmation": "password123",
-    "company_name": "Tech Corp",
-    "company_website": "https://techcorp.com"
-}
-```
-
-### Login
-
-```json
-POST /api/v1/login
-Content-Type: application/json
-
-{
-    "email": "john@example.com",
-    "password": "password123"
-}
-```
-
-### Create Job
-
-```json
-POST /api/v1/jobs
-Content-Type: application/json
-Authorization: Bearer {token}
-
-{
-    "title": "Frontend Developer",
-    "company_name": "Tech Corp",
-    "location": "Jakarta, Indonesia",
-    "department": "Engineering",
-    "type": "Full Time",
-    "mode": "Remote",
-    "level": "Entry Level (1-3 Years)",
-    "deadline": "2025-12-31",
-    "duration": "Permanent",
-    "salary_min": 5000000,
-    "salary_max": 10000000,
-    "contact_name": "HR Manager",
-    "contact_email": "hr@techcorp.com",
-    "contact_phone": "+62812345678",
-    "description": "We are looking for...",
-    "responsibilities": "- Build UI components\n- Collaborate with team",
-    "requirements": "- 1+ years React experience\n- TypeScript",
-    "benefits": "- Health insurance\n- Remote work"
-}
-```
-
-### Apply for Job
-
-```json
-POST /api/v1/jobs/1/apply
-Content-Type: multipart/form-data
-Authorization: Bearer {token}
-
-cv_type: existing | new
-cv: (file, required if cv_type is "new")
-```
-
-## Response Format
-
-### Success Response
-
-```json
-{
-    "message": "Success message",
-    "data": { ... }
-}
-```
-
-### Error Response
-
-```json
-{
-    "message": "Error description",
-    "error": "error_code",
-    "errors": {
-        "field": ["Validation error message"]
-    }
-}
-```
-
-### Pagination Response
-
-```json
-{
-    "data": [...],
-    "meta": {
-        "total": 100,
-        "per_page": 10,
-        "current_page": 1,
-        "last_page": 10,
-        "from": 1,
-        "to": 10
-    },
-    "links": {
-        "first": "http://...",
-        "last": "http://...",
-        "prev": null,
-        "next": "http://..."
-    }
-}
-```
-
-## Rate Limiting
-
-| Endpoint Type | Limit |
-|--------------|-------|
-| Authentication | 10 requests/minute |
-| API Endpoints | 60 requests/minute |
-| File Uploads | 10 requests/minute |
-
-## Project Structure
-
-```
-backend/
-├── app/
-│   ├── Http/
-│   │   ├── Controllers/Api/   # API Controllers
-│   │   ├── Middleware/        # Custom middleware
-│   │   ├── Requests/          # Form Request validation
-│   │   └── Resources/         # API Resources
-│   ├── Models/                # Eloquent models
-│   └── Providers/             # Service providers
-├── config/
-│   ├── relock.php             # App-specific config
-│   └── ...
-├── database/
-│   ├── migrations/            # Database migrations
-│   └── seeders/               # Database seeders
-├── routes/
-│   └── api.php                # API routes
-├── storage/
-│   └── app/public/            # Uploaded files
-└── tests/                     # Feature & unit tests
-```
-
-## Development Commands
+## Example request
 
 ```bash
-# Run tests
-php artisan test
-
-# Run with coverage
-php artisan test --coverage
-
-# Clear caches
-php artisan optimize:clear
-
-# View routes
-php artisan route:list --path=api
-
-# Fresh migration with seeding
-php artisan migrate:fresh --seed
-
-# Run queue worker
-php artisan queue:work
-
-# View logs in real-time
-php artisan pail
+curl http://127.0.0.1:8000/api/v1/health
 ```
 
-## Production Deployment
+An authenticated request includes an authorization header:
 
-See [DEPLOYMENT.md](./DEPLOYMENT.md) for production deployment guide.
+```http
+Authorization: Bearer YOUR_ACCESS_TOKEN
+```
 
-## Environment Variables
+The API's current endpoint definitions are maintained in [routes/api.php](routes/api.php).
 
-See [.env.example](./.env.example) for all available configuration options.
+## Sample data
 
-## License
+The database seeders create example candidates, recruiters, vacancies, and applications for local exploration. Seeded account details are printed by `DatabaseSeeder` when seeding completes. Use `php artisan migrate:fresh --seed` only when it is safe to reset the current local database.
 
-MIT
+## Development commands
+
+```bash
+php artisan test
+php artisan route:list --path=api
+php artisan optimize:clear
+```
+
+Deployment configuration is covered in [DEPLOYMENT.md](DEPLOYMENT.md), and environment variables are documented in [.env.example](.env.example).
